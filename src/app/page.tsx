@@ -1,65 +1,112 @@
-import Image from "next/image";
+import dbConnect from "@/lib/db";
+import Product from "@/models/Product";
+import ProductCard from "@/components/product-card";
+import Link from "next/link";
+import HeroSlider from "@/components/hero-slider";
+import "@/models/User";
+import FilterSidebar from "@/components/FilterSidebar";
 
-export default function Home() {
+async function getProducts(params: {
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sort?: string;
+  search?: string;
+}) {
+  await dbConnect();
+
+  let query: any = {};
+
+  if (params.category && params.category !== "All") {
+    query.category = params.category;
+  }
+
+  if (params.minPrice || params.maxPrice) {
+    query.price = {};
+    if (params.minPrice) query.price.$gte = Number(params.minPrice);
+    if (params.maxPrice) query.price.$lte = Number(params.maxPrice);
+  }
+
+  if (params.search) {
+    query.$or = [
+      { name: { $regex: params.search, $options: "i" } },
+      { description: { $regex: params.search, $options: "i" } }
+    ];
+  }
+
+  let sortOptions: any = { createdAt: -1 };
+  if (params.sort === "price_low") sortOptions = { price: 1 };
+  if (params.sort === "price_high") sortOptions = { price: -1 };
+  if (params.sort === "trending") sortOptions = { rating: -1 };
+
+  const products = await Product.find(query)
+    .sort(sortOptions)
+    .limit(24)
+    .populate("sellerId", "storeName")
+    .lean();
+
+  return products.map((product: any) => ({
+    ...product,
+    _id: product._id.toString(),
+    sellerId: product.sellerId ? { ...product.sellerId, _id: product.sellerId._id.toString() } : null,
+    createdAt: product.createdAt.toString(),
+    updatedAt: product.updatedAt.toString(),
+    discount: product.discount || Math.floor(Math.random() * 30) + 5,
+    rating: product.rating || 4.5,
+    reviews: product.reviews || Math.floor(Math.random() * 100),
+  }));
+}
+
+export default async function Home({ searchParams }: { searchParams: Promise<any> }) {
+  const resolvedParams = await searchParams;
+  const products = await getProducts(resolvedParams);
+  const isFiltered = Object.keys(resolvedParams).length > 0;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-gray-50">
+
+      {!isFiltered && (
+        <div className="max-w-7xl mx-auto px-4 mt-4">
+          <HeroSlider />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 mt-8 flex flex-col lg:flex-row gap-6 pb-12">
+        {/* Sidebar */}
+        <FilterSidebar />
+
+        {/* Product Grid */}
+        <div className="flex-1">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-800">
+              {isFiltered ? "Search Results" : "Just For You"}
+            </h3>
+            {isFiltered && <span className="text-sm text-gray-500">{products.length} products found</span>}
+          </div>
+
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {products.map((product: any) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white p-12 rounded-sm text-center shadow-sm">
+              <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+              <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block font-medium">Clear all filters</Link>
+            </div>
+          )}
+
+          {!isFiltered && products.length > 0 && (
+            <div className="mt-8 text-center">
+              <Link href="/products" className="inline-block border-2 border-blue-600 text-blue-600 px-10 py-2.5 font-bold text-sm uppercase hover:bg-blue-50 transition rounded-sm">
+                Load More
+              </Link>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+
+    </main>
   );
 }
