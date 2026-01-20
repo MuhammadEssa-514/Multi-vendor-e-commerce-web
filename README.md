@@ -1,39 +1,96 @@
-⚠️ Important Notice – Proprietary Software
+# 🔐 Proprietary Software & Usage Policy
 
-This repository contains proprietary and confidential software developed and owned by [Muhammad Essa-514 / 514hub].
+## 📌 Project Information
 
-🚫 Usage Restrictions
+| Field | Details |
+|------|--------|
+| Project Type | Multi-Vendor E-Commerce Platform |
+| Ownership | Proprietary Software |
+| Owner | Muhammad Essa |
+| Brand | 514hub |
+| License | No License (All Rights Reserved) |
+| Open Source | ❌ No |
 
-This project is NOT open source.
+---
 
-You are NOT allowed to:
+## 🚫 Usage Policy (Strict)
 
-Use this code for personal or professional projects
+This repository is **NOT open source**.  
+No rights are granted to use this software unless **explicit written permission** is provided by the owner.
 
-Copy, clone, modify, or distribute this code
+---
 
-Sell or resell this project or any part of it
+## ❌ Prohibited Actions
 
-Deploy this project for commercial purposes
+| Action | Status |
+|------|--------|
+| Personal use | ❌ Not allowed |
+| Professional / commercial use | ❌ Not allowed |
+| Client projects | ❌ Not allowed |
+| SaaS / production deployment | ❌ Not allowed |
+| Copying or cloning | ❌ Not allowed |
+| Modifying the source code | ❌ Not allowed |
+| Redistributing the project | ❌ Not allowed |
+| Selling or reselling | ❌ Not allowed |
 
-Use this project in client work, SaaS, or production systems
+---
 
-Without explicit written permission from the owner.
+## ✅ Limited Permissions
 
-✅ What is allowed
+The following actions are **strictly limited**:
 
-Viewing the repository for evaluation or learning purposes only
+| Allowed Activity | Conditions |
+|-----------------|------------|
+| Viewing source code | Evaluation purposes only |
+| Reading documentation | Learning and review only |
 
-📄 Ownership & Rights
+⚠️ **No reuse, deployment, or modification is permitted.**
 
-All rights, title, and interest in this software remain exclusively with the owner.
+---
 
-© 2026 [Muhammad Essa / 514hub]
-All rights reserved.
+## 📄 Ownership & Intellectual Property Rights
 
-⚖️ Legal Notice
+| Item | Statement |
+|-----|----------|
+| Copyright | © 2026 Muhammad Essa / 514hub |
+| Rights | All rights reserved |
+| License Grant | None |
+| Redistribution | Not permitted |
 
-Unauthorized use, reproduction, or distribution of this software may result in legal action.
+This repository does **not provide any license**, express or implied.
 
-If you want permission to use this software, please contact the owner directly.
-whatsapp +923555915756
+---
+
+## ⚖️ Legal Disclaimer
+
+| Notice | Details |
+|------|--------|
+| Legal Status | Proprietary & confidential |
+| Enforcement | Subject to copyright & IP laws |
+| Violations | May result in legal action |
+
+Unauthorized use, copying, or commercial exploitation of this software is **strictly prohibited**.
+
+---
+
+## 📞 Licensing & Permission Requests
+
+If you want to:
+- Use this project professionally
+- Deploy it for commercial purposes
+- Purchase a license
+- Obtain written permission
+
+Please contact the owner:
+
+| Contact Method | Details |
+|---------------|--------|
+| WhatsApp | +92 355 5915756 |
+| Email | muhammadessa1514@gmail.com |
+| Portfolio | [muhammadessa514.vercel.app](https://muhammadessa514.vercel.app/) |
+
+---
+
+## ⚠️ Final Notice
+
+Access to this repository **does not grant permission** to use, modify, or deploy the software.
