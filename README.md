@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+⚠️ Important Notice – Proprietary Software
 
-## Getting Started
+This repository contains proprietary and confidential software developed and owned by [Muhammad Essa-514 / 514hub].
 
-First, run the development server:
+🚫 Usage Restrictions
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project is NOT open source.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You are NOT allowed to:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Use this code for personal or professional projects
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy, clone, modify, or distribute this code
 
-## Learn More
+Sell or resell this project or any part of it
 
-To learn more about Next.js, take a look at the following resources:
+Deploy this project for commercial purposes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use this project in client work, SaaS, or production systems
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Without explicit written permission from the owner.
 
-## Deploy on Vercel
+✅ What is allowed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Viewing the repository for evaluation or learning purposes only
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📄 Ownership & Rights
+
+All rights, title, and interest in this software remain exclusively with the owner.
+
+© 2026 [Muhammad Essa / 514hub]
+All rights reserved.
+
+⚖️ Legal Notice
+
+Unauthorized use, reproduction, or distribution of this software may result in legal action.
+
+If you want permission to use this software, please contact the owner directly.
+whatsapp +923555915756
