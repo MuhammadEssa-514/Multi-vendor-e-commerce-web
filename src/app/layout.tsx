@@ -12,7 +12,7 @@ import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Daraz Clone - Online Shopping in Pakistan",
+  title: "Daraz 514 - Online Shopping in Pakistan",
   description: "Best online shopping experience",
 };
 

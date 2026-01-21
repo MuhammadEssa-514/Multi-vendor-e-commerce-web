@@ -9,21 +9,21 @@ const slides = [
         id: 1,
         title: "Super Flash Sale",
         subtitle: "Up to 70% Off Electronics",
-        bg: "bg-blue-600",
-        image: "/banner1.jpg" // Placeholder or we use CSS gradients
+        bg: "bg-gradient-to-r from-blue-600 to-indigo-900",
+        image: "/banner1.jpg"
     },
     {
         id: 2,
         title: "New Arrivals",
         subtitle: "Trendy Fashion for Everyone",
-        bg: "bg-purple-600",
+        bg: "bg-gradient-to-r from-rose-500 to-purple-700",
         image: "/banner2.jpg"
     },
     {
         id: 3,
         title: "Home & Living",
         subtitle: "Upgrade Your Space",
-        bg: "bg-orange-500",
+        bg: "bg-gradient-to-r from-orange-400 to-red-600",
         image: "/banner3.jpg"
     }
 ];
@@ -50,11 +50,15 @@ export default function HeroSlider() {
                     className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
                         } ${slide.bg} flex items-center justify-center text-white`}
                 >
-                    <div className="text-center p-8">
-                        <h2 className="text-4xl md:text-6xl font-bold mb-4 transform translate-y-0 transition-transform duration-700 animate-fade-in-up">{slide.title}</h2>
-                        <p className="text-xl md:text-2xl mb-8 animate-fade-in-up delay-100">{slide.subtitle}</p>
+                    <div className="relative z-10 text-center p-12 max-w-3xl mx-auto bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl">
+                        <h2 className="text-4xl md:text-7xl font-black mb-6 tracking-tight drop-shadow-md transform translate-y-0 transition-transform duration-700 animate-fade-in-up">
+                            {slide.title}
+                        </h2>
+                        <p className="text-xl md:text-3xl mb-10 font-medium text-blue-50 animate-fade-in-up delay-100 drop-shadow-sm">
+                            {slide.subtitle}
+                        </p>
                         <div className="space-x-4">
-                            <Link href="/products" className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition animate-fade-in-up delay-200">
+                            <Link href="/products" className="bg-white text-gray-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 animate-fade-in-up delay-200 inline-block">
                                 Shop Now
                             </Link>
                         </div>

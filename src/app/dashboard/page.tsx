@@ -24,9 +24,14 @@ export default async function DashboardPage() {
         redirect("/auth/signin");
     }
 
-    // If seller, they should probably be at /dashboard/seller, but we'll show them a link
+    // If seller, redirect to seller dashboard
     if ((session.user as any).role === 'seller') {
         redirect("/dashboard/seller");
+    }
+
+    // If admin, redirect to admin dashboard
+    if ((session.user as any).role === 'admin') {
+        redirect("/dashboard/admin");
     }
 
     const stats = await getCustomerStats((session.user as any).id);

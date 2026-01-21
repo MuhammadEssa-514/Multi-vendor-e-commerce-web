@@ -17,11 +17,22 @@ async function getProducts(params: {
     let query: any = {};
 
     if (params.search) {
-        query.$or = [
-            { name: { $regex: params.search, $options: "i" } },
-            { description: { $regex: params.search, $options: "i" } },
-            { tags: { $regex: params.search, $options: "i" } }
-        ];
+        const searchTerms = params.search.trim().split(/\s+/);
+
+        // Create an array of conditions where EACH term must match at least one field
+        const termConditions = searchTerms.map(term => {
+            const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(safeTerm, "i");
+            return {
+                $or: [
+                    { name: { $regex: regex } },
+                    { description: { $regex: regex } },
+                    { tags: { $regex: regex } }
+                ]
+            };
+        });
+
+        query.$and = termConditions;
     }
 
     if (params.category && params.category !== "All") {
@@ -78,7 +89,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                     </div>
 
                     {products.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
                             {products.map((product: any) => (
                                 <ProductCard key={product._id} product={product} />
                             ))}

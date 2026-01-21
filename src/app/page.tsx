@@ -5,6 +5,7 @@ import Link from "next/link";
 import HeroSlider from "@/components/hero-slider";
 import "@/models/User";
 import FilterSidebar from "@/components/FilterSidebar";
+import { Crown } from "lucide-react";
 
 async function getProducts(params: {
   category?: string;
@@ -57,17 +58,67 @@ async function getProducts(params: {
   }));
 }
 
+async function getFeaturedProducts() {
+  await dbConnect();
+  const now = new Date();
+  const products = await Product.find({
+    isFeatured: true,
+    featuredExpiresAt: { $gt: now }
+  })
+    .sort({ featuredExpiresAt: 1 })
+    .limit(4)
+    .populate("sellerId", "storeName")
+    .lean();
+
+  return products.map((product: any) => ({
+    ...product,
+    _id: product._id.toString(),
+    sellerId: product.sellerId ? { ...product.sellerId, _id: product.sellerId._id.toString() } : null,
+    createdAt: product.createdAt.toString(),
+    updatedAt: product.updatedAt.toString(),
+    discount: product.discount || Math.floor(Math.random() * 30) + 5,
+    rating: product.rating || 4.5,
+    reviews: product.reviews || Math.floor(Math.random() * 100),
+  }));
+}
+
 export default async function Home({ searchParams }: { searchParams: Promise<any> }) {
   const resolvedParams = await searchParams;
   const products = await getProducts(resolvedParams);
+  const featuredProducts = await getFeaturedProducts();
   const isFiltered = Object.keys(resolvedParams).length > 0;
 
   return (
     <main className="min-h-screen bg-gray-50">
 
       {!isFiltered && (
-        <div className="max-w-7xl mx-auto px-4 mt-4">
+        <div className="max-w-7xl mx-auto px-4 mt-4 space-y-8">
           <HeroSlider />
+
+          {/* Featured / Premium Section */}
+          {featuredProducts.length > 0 && (
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-200">
+                  <Crown size={24} fill="currentColor" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight leading-none">Premium Collection</h2>
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-widest mt-1">Handpicked Top Sellers</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {featuredProducts.map((product: any) => (
+                  <div key={product._id} className="relative group">
+                    <div className="absolute -top-3 -right-2 z-10 bg-amber-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-md shadow-sm transform rotate-3 flex items-center gap-1">
+                      <Crown size={10} fill="currentColor" /> Featured
+                    </div>
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
 
@@ -78,14 +129,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<any
         {/* Product Grid */}
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-800">
+            <h3 className="text-2xl font-black text-gray-800 uppercase tracking-tight flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full block"></span>
               {isFiltered ? "Search Results" : "Just For You"}
             </h3>
             {isFiltered && <span className="text-sm text-gray-500">{products.length} products found</span>}
           </div>
 
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {products.map((product: any) => (
                 <ProductCard key={product._id} product={product} />
               ))}

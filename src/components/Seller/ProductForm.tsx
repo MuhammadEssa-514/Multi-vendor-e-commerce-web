@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, X, Loader2, Plus, ImageIcon, Sparkles, Tag, DollarSign, Clock } from "lucide-react";
+import { Upload, X, Loader2, Plus, ImageIcon, Sparkles, Tag, DollarSign, Clock, Smartphone, Home, Shirt, Dumbbell, Car, Wrench, BookOpen, Gamepad2 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 
 const CATEGORIES = [
     { name: "Electronics", icon: <Sparkles size={16} /> },
-    { name: "Clothing", icon: <Tag size={16} /> },
-    { name: "Home & Garden", icon: <Clock size={16} /> },
-    { name: "Beauty", icon: <Sparkles size={16} /> },
-    { name: "Toys", icon: <Sparkles size={16} /> },
-    { name: "Mobiles", icon: <Sparkles size={16} /> },
+    { name: "Mobiles & Tablets", icon: <Smartphone size={16} /> },
+    { name: "Fashion", icon: <Shirt size={16} /> },
+    { name: "Home & Living", icon: <Home size={16} /> },
+    { name: "Beauty & Health", icon: <Sparkles size={16} /> },
+    { name: "Toys & Hobbies", icon: <Gamepad2 size={16} /> },
+    { name: "Sports & Outdoors", icon: <Dumbbell size={16} /> },
+    { name: "Automotive", icon: <Car size={16} /> },
+    { name: "Tools & Industrial", icon: <Wrench size={16} /> },
+    { name: "Books & Stationery", icon: <BookOpen size={16} /> },
 ];
 
 interface ProductFormProps {
@@ -52,6 +56,8 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
         setAttributes({ ...attributes, [name]: value });
     };
 
+    const [imageUrlInput, setImageUrlInput] = useState("");
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
@@ -79,6 +85,12 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
 
         setImageGallery([...imageGallery, ...uploadedUrls]);
         setUploading(false);
+    };
+
+    const handleAddImage = () => {
+        if (!imageUrlInput.trim()) return;
+        setImageGallery([...imageGallery, imageUrlInput.trim()]);
+        setImageUrlInput("");
     };
 
     const removeImage = (index: number) => {
@@ -212,43 +224,63 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {formData.category === "Clothing" && (
+
+                            {/* Mobiles & Tablets */}
+                            {formData.category === "Mobiles & Tablets" && (
                                 <>
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Sizes (comma separated)</label>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Brand</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.brand || ""}
+                                            onChange={(e) => handleAttributeChange("brand", e.target.value)}
+                                        >
+                                            <option value="">Select Brand</option>
+                                            <option value="Apple">Apple</option>
+                                            <option value="Samsung">Samsung</option>
+                                            <option value="Xiaomi">Xiaomi</option>
+                                            <option value="Infinix">Infinix</option>
+                                            <option value="Tecno">Tecno</option>
+                                            <option value="Realme">Realme</option>
+                                            <option value="Oppo">Oppo</option>
+                                            <option value="Vivo">Vivo</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Model</label>
                                         <input
                                             type="text"
-                                            placeholder="S, M, L, XL"
-                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold"
-                                            value={attributes.sizes?.join(", ") || ""}
-                                            onChange={(e) => handleAttributeChange("sizes", e.target.value.split(",").map(s => s.trim()))}
+                                            placeholder="e.g. iPhone 15 Pro"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.model || ""}
+                                            onChange={(e) => handleAttributeChange("model", e.target.value)}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Color Options</label>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Color Options (comma separated)</label>
                                         <input
                                             type="text"
-                                            placeholder="Blue, Black, Red"
-                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold"
+                                            placeholder="e.g. Titanium, Black, Blue"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
                                             value={attributes.colors?.join(", ") || ""}
                                             onChange={(e) => handleAttributeChange("colors", e.target.value.split(",").map(c => c.trim()))}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Material</label>
-                                        <input
-                                            type="text"
-                                            placeholder="100% Cotton"
-                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all font-bold"
-                                            value={attributes.material || ""}
-                                            onChange={(e) => handleAttributeChange("material", e.target.value)}
-                                        />
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Storage (ROM)</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.storage || ""}
+                                            onChange={(e) => handleAttributeChange("storage", e.target.value)}
+                                        >
+                                            <option value="">Select Storage</option>
+                                            <option value="64GB">64GB</option>
+                                            <option value="128GB">128GB</option>
+                                            <option value="256GB">256GB</option>
+                                            <option value="512GB">512GB</option>
+                                            <option value="1TB">1TB</option>
+                                        </select>
                                     </div>
-                                </>
-                            )}
-
-                            {formData.category === "Mobiles" && (
-                                <>
                                     <div>
                                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Memory (RAM)</label>
                                         <select
@@ -265,32 +297,231 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Storage</label>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">PTA Approved?</label>
                                         <select
                                             className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
-                                            value={attributes.storage || ""}
-                                            onChange={(e) => handleAttributeChange("storage", e.target.value)}
+                                            value={attributes.pta || ""}
+                                            onChange={(e) => handleAttributeChange("pta", e.target.value)}
                                         >
-                                            <option value="">Select Storage</option>
-                                            <option value="64GB">64GB</option>
-                                            <option value="128GB">128GB</option>
-                                            <option value="256GB">256GB</option>
-                                            <option value="512GB">512GB</option>
-                                            <option value="1TB">1TB</option>
+                                            <option value="">Select Status</option>
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Fashion */}
+                            {formData.category === "Fashion" && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Gender</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.gender || ""}
+                                            onChange={(e) => handleAttributeChange("gender", e.target.value)}
+                                        >
+                                            <option value="">Select Gender</option>
+                                            <option value="Men">Men</option>
+                                            <option value="Women">Women</option>
+                                            <option value="Kids">Kids</option>
+                                            <option value="Unisex">Unisex</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Model / Year</label>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Sizes (comma separated)</label>
                                         <input
                                             type="text"
-                                            placeholder="2024 Release"
+                                            placeholder="e.g. S, M, L, XL"
                                             className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
-                                            value={attributes.model || ""}
-                                            onChange={(e) => handleAttributeChange("model", e.target.value)}
+                                            value={attributes.sizes?.join(", ") || ""}
+                                            onChange={(e) => handleAttributeChange("sizes", e.target.value.split(",").map(s => s.trim()))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Colors (comma separated)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Red, Blue, Black"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.colors?.join(", ") || ""}
+                                            onChange={(e) => handleAttributeChange("colors", e.target.value.split(",").map(c => c.trim()))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Material</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Cotton, Polyester"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.material || ""}
+                                            onChange={(e) => handleAttributeChange("material", e.target.value)}
                                         />
                                     </div>
                                 </>
                             )}
+
+                            {/* Electronics (General) */}
+                            {formData.category === "Electronics" && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Brand</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Sony, LG"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.brand || ""}
+                                            onChange={(e) => handleAttributeChange("brand", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Warranty Period</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.warranty || ""}
+                                            onChange={(e) => handleAttributeChange("warranty", e.target.value)}
+                                        >
+                                            <option value="">Select Warranty</option>
+                                            <option value="No Warranty">No Warranty</option>
+                                            <option value="6 Months">6 Months</option>
+                                            <option value="1 Year">1 Year</option>
+                                            <option value="2 Years">2 Years</option>
+                                        </select>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Books & Stationery */}
+                            {formData.category === "Books & Stationery" && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Author / Brand</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. J.K. Rowling"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.author || ""}
+                                            onChange={(e) => handleAttributeChange("author", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Language</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.language || ""}
+                                            onChange={(e) => handleAttributeChange("language", e.target.value)}
+                                        >
+                                            <option value="">Select Language</option>
+                                            <option value="English">English</option>
+                                            <option value="Urdu">Urdu</option>
+                                            <option value="Arabic">Arabic</option>
+                                        </select>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Automotive */}
+                            {formData.category === "Automotive" && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Compatible Brand</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Honda, Toyota"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.compatibleBrand || ""}
+                                            onChange={(e) => handleAttributeChange("compatibleBrand", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Part Number (Optional)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. TY-1234"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.partNumber || ""}
+                                            onChange={(e) => handleAttributeChange("partNumber", e.target.value)}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Beauty & Health */}
+                            {formData.category === "Beauty & Health" && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Skin Type</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.skinType || ""}
+                                            onChange={(e) => handleAttributeChange("skinType", e.target.value)}
+                                        >
+                                            <option value="">Select Skin Type</option>
+                                            <option value="All Types">All Types</option>
+                                            <option value="Dry">Dry</option>
+                                            <option value="Oily">Oily</option>
+                                            <option value="Sensitive">Sensitive</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Volume / Weight</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. 100ml"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.volume || ""}
+                                            onChange={(e) => handleAttributeChange("volume", e.target.value)}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Generic Fallback for other categories (Home, Toys, Tools, Sports) */}
+                            {["Home & Living", "Toys & Hobbies", "Sports & Outdoors", "Tools & Industrial"].includes(formData.category) && (
+                                <>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Brand / Manufacturer</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Brand Name"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.brand || ""}
+                                            onChange={(e) => handleAttributeChange("brand", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Material</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Material Type"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.material || ""}
+                                            onChange={(e) => handleAttributeChange("material", e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Color (Optional)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Red, Multicolor"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.colors?.[0] || ""}
+                                            onChange={(e) => handleAttributeChange("colors", [e.target.value])}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Weight / Dimensions</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. 5kg, 10x10 inches"
+                                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:border-blue-500 outline-none transition-all font-bold"
+                                            value={attributes.dimensions || ""}
+                                            onChange={(e) => handleAttributeChange("dimensions", e.target.value)}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
                         </div>
                     </section>
                 )}
@@ -319,23 +550,44 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                             </div>
                         ))}
 
-                        {imageGallery.length < 5 && (
-                            <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all group">
-                                {uploading ? (
-                                    <Loader2 size={24} className="animate-spin text-blue-600" />
-                                ) : (
-                                    <>
-                                        <div className="p-3 bg-gray-50 rounded-xl group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                            <Upload size={20} />
-                                        </div>
-                                        <span className="mt-2 text-[10px] font-black text-gray-400 uppercase">Add Image</span>
-                                    </>
-                                )}
-                                <input type="file" multiple className="hidden" onChange={handleFileChange} disabled={uploading} />
-                            </label>
-                        )}
                     </div>
-                    <p className="text-[10px] text-gray-400 text-center font-bold px-4">Upload high-res JPG/PNG</p>
+
+                    {imageGallery.length < 5 && (
+                        <div className="space-y-3 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            {/* Option 1: Upload File */}
+                            <label className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all font-bold text-gray-600 text-xs shadow-sm group">
+                                {uploading ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                    <Upload size={16} className="group-hover:scale-110 transition-transform" />
+                                )}
+                                <span>{uploading ? "Uploading..." : "Upload from Device"}</span>
+                                <input type="file" multiple className="hidden" onChange={handleFileChange} disabled={uploading} accept="image/*" />
+                            </label>
+
+                            <div className="text-center text-[10px] font-black text-gray-300 uppercase tracking-widest">OR</div>
+
+                            {/* Option 2: Paste URL */}
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Paste Image Link (https://...)"
+                                    className="flex-1 px-4 py-2 border border-gray-200 rounded-xl bg-white text-xs focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                                    value={imageUrlInput}
+                                    onChange={(e) => setImageUrlInput(e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAddImage}
+                                    className="bg-gray-900 text-white px-3 py-2 rounded-xl hover:bg-gray-800 transition shadow-sm"
+                                    title="Add Link"
+                                >
+                                    <Plus size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    <p className="text-[10px] text-gray-400 text-center font-bold px-4">Supported: JPG, PNG, WEBP (Max 5MB)</p>
                 </section>
 
                 {/* Pricing & Sales */}

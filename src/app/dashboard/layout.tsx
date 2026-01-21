@@ -6,6 +6,8 @@ import { Menu, User, ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import AdminSidebar from "@/components/AdminSidebar";
+
 export default function DashboardLayout({
     children,
 }: {
@@ -19,10 +21,12 @@ export default function DashboardLayout({
         return <>{children}</>;
     }
 
+    const isAdmin = (session?.user as any)?.role === "admin";
+
     return (
         <div className="flex h-screen bg-gray-50/50 overflow-hidden">
-            {/* Desktop Sidebar */}
-            <CustomerSidebar />
+            {/* Sidebar (Admin vs Customer) */}
+            {isAdmin ? <AdminSidebar /> : <CustomerSidebar />}
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">

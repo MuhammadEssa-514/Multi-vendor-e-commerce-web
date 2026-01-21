@@ -81,20 +81,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
                 {/* Left Column: Media & Core Info */}
                 <div className="xl:col-span-9 space-y-10">
-                    <div className="bg-white rounded-[2rem] p-8 sm:p-12 shadow-sm border border-gray-100">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                    <div className="bg-white rounded-[2rem] p-6 sm:p-12 shadow-sm border border-gray-100">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
                             {/* Image Component */}
                             <div className="lg:col-span-12 xl:col-span-5">
                                 <GalleryView images={product.images || []} name={product.name} />
 
-                                <div className="mt-10 grid grid-cols-2 gap-4">
-                                    <div className="bg-blue-50/50 p-5 rounded-3xl flex items-center gap-3">
-                                        <Truck className="text-blue-600" size={20} />
+                                <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="bg-blue-50/50 p-4 sm:p-5 rounded-3xl flex items-center gap-3 border border-blue-100/50">
+                                        <Truck className="text-blue-600 flex-shrink-0" size={20} />
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Fast Shipping</span>
                                     </div>
-                                    <div className="bg-green-50/50 p-5 rounded-3xl flex items-center gap-3">
-                                        <ShieldCheck className="text-green-600" size={20} />
+                                    <div className="bg-green-50/50 p-4 sm:p-5 rounded-3xl flex items-center gap-3 border border-green-100/50">
+                                        <ShieldCheck className="text-green-600 flex-shrink-0" size={20} />
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Verified Quality</span>
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                             {/* Product Info Overhaul - Less Bold, More Premium */}
                             <div className="lg:col-span-12 xl:col-span-7 flex flex-col">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-6">
+                                    <div className="flex flex-wrap items-center gap-3 mb-6">
                                         <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-gray-200">
                                             {product.category}
                                         </span>
@@ -119,7 +119,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                         {product.name}
                                     </h1>
 
-                                    <div className="flex items-center gap-6 mb-10">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-10">
                                         <div className="flex items-center gap-2">
                                             <div className="flex text-yellow-400">
                                                 {[...Array(5)].map((_, i) => (
@@ -128,11 +128,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                             </div>
                                             <span className="text-xs font-semibold text-gray-500">4.8 (124 Reviews)</span>
                                         </div>
-                                        <div className="h-4 w-px bg-gray-200"></div>
-                                        <div className="flex gap-5">
+
+                                        <div className="hidden sm:block h-4 w-px bg-gray-200"></div>
+
+                                        <div className="flex items-center gap-5">
                                             <WishlistButton productId={product._id} />
-                                            <button className="text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-                                                <Share2 size={16} /> Share
+                                            <button className="text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest group">
+                                                <Share2 size={16} className="group-hover:scale-110 transition-transform" /> Share
                                             </button>
                                         </div>
                                     </div>
@@ -311,7 +313,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                         </div>
                         <Link href="/products" className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-4 py-2 rounded-xl transition-all">Explore All</Link>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8">
                         {relatedProducts.map((p: any) => (
                             <ProductCard key={p._id} product={p} />
                         ))}

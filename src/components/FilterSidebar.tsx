@@ -2,19 +2,37 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Filter, X } from "lucide-react";
 
-const CATEGORIES = ["All", "Electronic", "Fashion", "Home", "Beauty", "Toys", "Sports", "Motors", "Tools"];
+const CATEGORIES = [
+    "All",
+    "Electronics",
+    "Mobiles & Tablets",
+    "Fashion",
+    "Home & Living",
+    "Beauty & Health",
+    "Toys & Hobbies",
+    "Sports & Outdoors",
+    "Automotive",
+    "Tools & Industrial",
+    "Books & Stationery"
+];
 
 export default function FilterSidebar() {
     const router = useRouter();
     const searchParams = useSearchParams();
-
     const pathname = usePathname();
 
     const [category, setCategory] = useState(searchParams.get("category") || "All");
     const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
     const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
     const [sort, setSort] = useState(searchParams.get("sort") || "newest");
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+    // Close mobile drawer when route changes or filters logic applies
+    useEffect(() => {
+        setIsMobileOpen(false);
+    }, [pathname, searchParams]);
 
     const applyFilters = () => {
         const params = new URLSearchParams();
@@ -27,11 +45,17 @@ export default function FilterSidebar() {
         if (search) params.set("search", search);
 
         router.push(`${pathname}?${params.toString()}`);
+        setIsMobileOpen(false);
     };
 
-    return (
-        <div className="w-full lg:w-64 flex-shrink-0 bg-white p-4 rounded-sm shadow-sm h-fit sticky top-[80px]">
-            <h3 className="font-bold text-gray-700 mb-4 uppercase text-xs tracking-wider border-b pb-2">Filters</h3>
+    const SidebarContent = () => (
+        <>
+            <div className="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
+                <h3 className="font-bold text-gray-800 uppercase text-xs tracking-wider">Filters</h3>
+                <button onClick={() => setIsMobileOpen(false)} className="lg:hidden text-gray-500 hover:text-red-500 transition">
+                    <X size={20} />
+                </button>
+            </div>
 
             {/* Categories */}
             <div className="mb-6">
@@ -82,7 +106,7 @@ export default function FilterSidebar() {
                 <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none bg-white"
+                    className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none text-black bg-white"
                 >
                     <option value="newest">Newest Arrivals</option>
                     <option value="price_low">Price: Low to High</option>
@@ -112,6 +136,39 @@ export default function FilterSidebar() {
                     Clear All
                 </button>
             )}
-        </div>
+        </>
+    );
+
+    return (
+        <>
+            {/* Mobile Toggle Button */}
+            <div className="lg:hidden w-full mb-4">
+                <button
+                    onClick={() => setIsMobileOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-white border border-blue-100 py-3 rounded-lg shadow-sm text-blue-700 font-bold hover:bg-blue-50 transition"
+                >
+                    <Filter size={18} />
+                    Show Filters
+                </button>
+            </div>
+
+            {/* Desktop Sidebar (Always Visible) */}
+            <div className="hidden lg:block w-64 flex-shrink-0 bg-white p-5 rounded-md border border-gray-200 h-fit sticky top-[90px]">
+                <SidebarContent />
+            </div>
+
+            {/* Mobile Sidebar (Drawer) */}
+            {isMobileOpen && (
+                <div className="fixed inset-0 z-[2000] lg:hidden">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setIsMobileOpen(false)} />
+
+                    {/* Drawer Content */}
+                    <div className="absolute left-0 top-0 bottom-0 w-80 bg-white p-6 shadow-2xl overflow-y-auto animate-slide-in-left">
+                        <SidebarContent />
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

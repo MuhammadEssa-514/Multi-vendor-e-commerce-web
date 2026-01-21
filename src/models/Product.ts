@@ -48,6 +48,14 @@ const ProductSchema = new Schema(
             type: [String],
             default: [],
         },
+        isFeatured: {
+            type: Boolean,
+            default: false,
+        },
+        featuredExpiresAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true },
 );

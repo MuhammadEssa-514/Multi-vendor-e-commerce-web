@@ -42,7 +42,7 @@ export default async function ProfilePage() {
                 <ProfileEditor userData={user} sellerData={JSON.parse(JSON.stringify(sellerData))} />
 
                 <p className="text-center text-gray-400 text-xs mt-12 font-medium">
-                    &copy; 2024 DarazClone Project. Secure & Encrypted Connection.
+                    &copy; 2024 Daraz514 Project. Secure & Encrypted Connection.
                 </p>
             </div>
         </div>
