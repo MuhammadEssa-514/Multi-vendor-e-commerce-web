@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔐 Proprietary Software & Usage Policy
 
-## Getting Started
+## 📌 Project Information
 
-First, run the development server:
+| Field | Details |
+|------|--------|
+| Project Type | Multi-Vendor E-Commerce Platform |
+| Ownership | Proprietary Software |
+| Owner | Muhammad Essa |
+| Brand | 514hub |
+| License | No License (All Rights Reserved) |
+| Open Source | ❌ No |
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚫 Usage Policy (Strict)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This repository is **NOT open source**.  
+No rights are granted to use this software unless **explicit written permission** is provided by the owner.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ❌ Prohibited Actions
 
-To learn more about Next.js, take a look at the following resources:
+| Action | Status |
+|------|--------|
+| Personal use | ❌ Not allowed |
+| Professional / commercial use | ❌ Not allowed |
+| Client projects | ❌ Not allowed |
+| SaaS / production deployment | ❌ Not allowed |
+| Copying or cloning | ❌ Not allowed |
+| Modifying the source code | ❌ Not allowed |
+| Redistributing the project | ❌ Not allowed |
+| Selling or reselling | ❌ Not allowed |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ✅ Limited Permissions
 
-## Deploy on Vercel
+The following actions are **strictly limited**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Allowed Activity | Conditions |
+|-----------------|------------|
+| Viewing source code | Evaluation purposes only |
+| Reading documentation | Learning and review only |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+⚠️ **No reuse, deployment, or modification is permitted.**
+
+---
+
+## 📄 Ownership & Intellectual Property Rights
+
+| Item | Statement |
+|-----|----------|
+| Copyright | © 2026 Muhammad Essa / 514hub |
+| Rights | All rights reserved |
+| License Grant | None |
+| Redistribution | Not permitted |
+
+This repository does **not provide any license**, express or implied.
+
+---
+
+## ⚖️ Legal Disclaimer
+
+| Notice | Details |
+|------|--------|
+| Legal Status | Proprietary & confidential |
+| Enforcement | Subject to copyright & IP laws |
+| Violations | May result in legal action |
+
+Unauthorized use, copying, or commercial exploitation of this software is **strictly prohibited**.
+
+---
+
+## 📞 Licensing & Permission Requests
+
+If you want to:
+- Use this project professionally
+- Deploy it for commercial purposes
+- Purchase a license
+- Obtain written permission
+
+Please contact the owner:
+
+| Contact Method | Details |
+|---------------|--------|
+| WhatsApp | +92 355 5915756 |
+| Email | muhammadessa1514@gmail.com |
+| Portfolio | [muhammadessa514.vercel.app](https://muhammadessa514.vercel.app/) |
+
+---
+
+## ⚠️ Final Notice
+
+Access to this repository **does not grant permission** to use, modify, or deploy the software.
