@@ -46,8 +46,8 @@ export default async function DashboardPage() {
     return (
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
             <div className="mb-8">
-                <h2 className="text-3xl font-black text-gray-900">Account Overview</h2>
-                <p className="text-gray-500 mt-1">Manage your activity and track your recent purchases.</p>
+                <h2 className="text-2xl font-black text-gray-900">Account Overview</h2>
+                <p className="text-sm text-gray-500 mt-1">Manage your activity and track your recent purchases.</p>
             </div>
 
             {/* Stats Grid */}
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
                                 <stat.icon size={24} />
                             </div>
                         </div>
-                        <h3 className="text-2xl font-black text-gray-900">{stat.value}</h3>
+                        <h3 className="text-xl font-black text-gray-900">{stat.value}</h3>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">{stat.name}</p>
                     </div>
                 ))}
@@ -69,8 +69,8 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
                     <div className="relative z-10">
-                        <h3 className="text-2xl font-black mb-4">Ready for your next find?</h3>
-                        <p className="text-indigo-100 mb-6 max-w-md font-medium">Explore thousands of products from local and international sellers. Quick delivery and secure payments guaranteed.</p>
+                        <h3 className="text-xl font-black mb-4">Ready for your next find?</h3>
+                        <p className="text-indigo-100 mb-6 max-w-md text-sm font-medium">Explore thousands of products from local and international sellers. Quick delivery and secure payments guaranteed.</p>
                         <Link
                             href="/products"
                             className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl text-sm font-black hover:bg-gray-50 transition shadow-lg"
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                 </div>
 
                 <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                    <h3 className="text-xl font-black text-gray-900 mb-4">Support Center</h3>
+                    <h3 className="text-lg font-black text-gray-900 mb-4">Support Center</h3>
                     <p className="text-sm text-gray-500 mb-6 font-medium">Need help with an order or have questions about a product?</p>
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-50 group hover:border-indigo-100 transition-colors">
