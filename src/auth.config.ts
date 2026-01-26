@@ -20,6 +20,19 @@ export const authConfig = {
             }
             return session;
         },
+        async redirect({ url, baseUrl }) {
+            // If redirecting to dashboard after login, check user role
+            if (url.startsWith(baseUrl + "/dashboard") || url === baseUrl + "/dashboard") {
+                // For now, we'll handle role-based redirects in the dashboard page itself
+                // This callback just allows the default behavior
+                return url;
+            }
+            // Allow callback URLs
+            if (url.startsWith(baseUrl)) return url;
+            // Allow relative callback URLs
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            return baseUrl;
+        },
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');

@@ -10,7 +10,8 @@ import {
     LogOut,
     ChevronRight,
     ShoppingBag,
-    Shield
+    Shield,
+    X
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -22,12 +23,17 @@ const menuItems = [
     { name: "Transactions", icon: ClipboardList, href: "/dashboard/admin/transactions" },
 ];
 
-export default function AdminSidebar() {
+interface SidebarProps {
+    className?: string;
+    onNavigate?: () => void;
+}
+
+export default function AdminSidebar({ className, onNavigate }: SidebarProps) {
     const pathname = usePathname();
 
     return (
-        <aside className="w-64 bg-slate-900 text-white border-r border-slate-800 min-h-screen sticky top-0 hidden lg:flex flex-col shadow-xl">
-            <div className="p-6 border-b border-slate-800">
+        <aside className={`w-64 bg-slate-900 text-white border-r border-slate-800 min-h-screen sticky top-0 flex-col shadow-xl ${className || 'hidden lg:flex'}`}>
+            <div className="p-6 border-b border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20">
                         <Shield className="text-white" size={20} />
@@ -37,6 +43,11 @@ export default function AdminSidebar() {
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Panel</span>
                     </div>
                 </div>
+                {onNavigate && (
+                    <button onClick={onNavigate} className="lg:hidden text-slate-400 hover:text-white">
+                        <X size={24} />
+                    </button>
+                )}
             </div>
 
             <nav className="flex-1 p-4 space-y-2 mt-4">
@@ -51,6 +62,7 @@ export default function AdminSidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={onNavigate}
                             className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group ${isActive
                                 ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
                                 : "text-slate-400 hover:bg-slate-800 hover:text-white"

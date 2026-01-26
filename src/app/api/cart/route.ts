@@ -47,6 +47,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
+    // Prevent sellers and admins from adding to cart
+    const userRole = (session.user as any).role;
+    if (userRole === "seller" || userRole === "admin") {
+        return NextResponse.json({ message: "Only customers can add items to cart" }, { status: 403 });
+    }
+
     try {
         const { items } = await req.json();
 

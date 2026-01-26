@@ -4,6 +4,7 @@ import { Package, Clock, Truck, CheckCircle, CreditCard, ShoppingBag } from "luc
 import Link from "next/link";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
+import MobileRedirect from "@/components/MobileRedirect";
 
 async function getCustomerStats(userId: string) {
     await dbConnect();
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
 
     return (
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+            <MobileRedirect />
             <div className="mb-8">
                 <h2 className="text-2xl font-black text-gray-900">Account Overview</h2>
                 <p className="text-sm text-gray-500 mt-1">Manage your activity and track your recent purchases.</p>

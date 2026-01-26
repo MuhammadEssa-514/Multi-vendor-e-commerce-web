@@ -47,6 +47,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
+    // Prevent sellers and admins from using wishlist
+    const userRole = (session.user as any).role;
+    if (userRole === "seller" || userRole === "admin") {
+        return NextResponse.json({ message: "Only customers can use wishlist" }, { status: 403 });
+    }
+
     try {
         const { productId } = await req.json();
 

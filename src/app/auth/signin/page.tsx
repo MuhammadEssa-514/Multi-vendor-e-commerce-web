@@ -35,7 +35,16 @@ export default function SignInPage() {
                 throw new Error("Invalid credentials");
             }
 
-            router.push("/dashboard");
+            // Fetch the session to check the user role
+            const response = await fetch("/api/auth/session");
+            const session = await response.json();
+
+            // Redirect based on role
+            if (session?.user?.role === "customer") {
+                router.push("/products");
+            } else {
+                router.push("/dashboard");
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
