@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Truck, CreditCard, Banknote, Smartphone, ChevronLeft } from "lucide-react"; // Icons
 import { useCart } from "@/context/CartContext";
@@ -10,7 +10,7 @@ import OrderSuccessModal from "@/components/OrderSuccessModal";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const mode = searchParams.get("mode");
@@ -274,5 +274,26 @@ export default function CheckoutPage() {
                 orderTotal={total}
             />
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white py-12 px-4">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 animate-pulse">
+                    <div className="lg:col-span-8 space-y-8">
+                        <div className="h-40 bg-gray-50 rounded-[2rem]"></div>
+                        <div className="h-60 bg-gray-50 rounded-[2rem]"></div>
+                    </div>
+                    <div className="lg:col-span-4 h-96 bg-gray-50 rounded-[2rem]"></div>
+                </div>
+                <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+                    <p className="text-xs font-black text-gray-300 uppercase tracking-[0.3em]">Loading Checkout...</p>
+                </div>
+            </div>
+        }>
+            <CheckoutContent />
+        </Suspense>
     );
 }

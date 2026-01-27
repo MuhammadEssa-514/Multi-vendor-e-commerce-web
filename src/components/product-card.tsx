@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Star, TrendingUp } from "lucide-react";
 import WishlistButton from "./WishlistButton";
 
@@ -46,10 +47,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* Image Section */}
             <Link href={`/products/${product._id}`} className="block relative aspect-[1/1] overflow-hidden bg-gray-50 p-2 sm:p-4">
                 {product.images?.[0] ? (
-                    <img
+                    <Image
                         src={product.images[0]}
                         alt={product.name}
-                        className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-contain group-hover:scale-110 transition-transform duration-700 ease-in-out"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">

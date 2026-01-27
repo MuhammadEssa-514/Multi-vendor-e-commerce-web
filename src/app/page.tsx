@@ -6,6 +6,26 @@ import HeroSlider from "@/components/hero-slider";
 import "@/models/User";
 import FilterSidebar from "@/components/FilterSidebar";
 import { Crown } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Daraz 514 | Online Shopping in Pakistan - Electronics, Fashion & More",
+  description: "Experience the best online shopping in Pakistan with Daraz 514. Shop for electronics, fashion, home appliances, and more at unbeatable prices.",
+  keywords: ["online shopping pakistan", "electronics", "fashion", "daraz clone", "ecommerce"],
+  openGraph: {
+    title: "Daraz 514 | Online Shopping in Pakistan",
+    description: "Discover a wide range of products including electronics, fashion, and more. Best prices and fast delivery.",
+    url: "https://daraz514.com", // Replace with actual domain if known, or relative
+    siteName: "Daraz 514",
+    locale: "en_PK",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Daraz 514 | Online Shopping in Pakistan",
+    description: "Shop the best deals on electronics, fashion, and more at Daraz 514.",
+  },
+};
 
 async function getProducts(params: {
   category?: string;
@@ -90,9 +110,43 @@ export default async function Home({ searchParams }: { searchParams: Promise<any
 
   return (
     <main className="min-h-screen bg-gray-50">
+      <h1 className="sr-only">Daraz 514 - Premier Online Shopping Destination in Pakistan</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Daraz 514",
+            "url": "https://daraz514.com",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://daraz514.com/?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Daraz 514",
+            "url": "https://daraz514.com",
+            "logo": "https://daraz514.com/logo.png", // Placeholder
+            "sameAs": [
+              "https://www.facebook.com/daraz514",
+              "https://twitter.com/daraz514",
+              "https://www.instagram.com/daraz514"
+            ]
+          })
+        }}
+      />
 
       {!isFiltered && (
-        <div className="max-w-7xl mx-auto px-4 mt-4 space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
           <HeroSlider />
 
           {/* Featured / Premium Section */}

@@ -4,6 +4,26 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Shop All Products | Daraz 514",
+    description: "Browse thousands of products across electronics, fashion, home appliances, and more. Find everything you need at Daraz 514 with fast delivery and best prices.",
+    keywords: ["shop online", "products", "electronics", "fashion", "pakistan shopping"],
+    openGraph: {
+        title: "Shop All Products | Daraz 514",
+        description: "Browse thousands of products across multiple categories.",
+        url: "https://daraz514.com/products",
+        siteName: "Daraz 514",
+        locale: "en_PK",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Shop All Products | Daraz 514",
+        description: "Browse thousands of products at unbeatable prices.",
+    },
+};
 
 async function getProducts(params: {
     category?: string;

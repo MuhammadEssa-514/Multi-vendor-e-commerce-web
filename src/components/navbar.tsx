@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Search, ShoppingCart, User, Heart, Menu, ChevronDown, Phone, HelpCircle, Bell } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -88,12 +89,14 @@ export default function Navbar() {
 
                             {session ? (
                                 <div className="hidden lg:flex items-center gap-2 text-sm text-gray-700 relative group cursor-pointer">
-                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm flex-shrink-0 relative">
                                         {userImage ? (
-                                            <img
+                                            <Image
                                                 src={userImage}
                                                 alt={session?.user?.name || "User"}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                sizes="32px"
+                                                className="object-cover"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-blue-50 flex items-center justify-center text-blue-600">
@@ -146,9 +149,9 @@ export default function Navbar() {
                             {/* Mobile Profile Icon (If Logged In) */}
                             {session && (
                                 <Link href="/dashboard" className="lg:hidden text-gray-700 hover:text-blue-600">
-                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 relative">
                                         {userImage ? (
-                                            <img src={userImage} alt="User" className="w-full h-full object-cover" />
+                                            <Image src={userImage} alt="User" fill sizes="32px" className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full bg-blue-50 flex items-center justify-center text-blue-600">
                                                 <User size={16} />
@@ -203,9 +206,9 @@ export default function Navbar() {
                             {/* User Section */}
                             {session ? (
                                 <div className="border border-blue-100/50 bg-blue-50/50 rounded-lg p-4 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white shadow-sm">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white shadow-sm relative">
                                         {userImage ? (
-                                            <img src={userImage} alt="User" className="w-full h-full object-cover" />
+                                            <Image src={userImage} alt="User" fill sizes="40px" className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600">
                                                 <User size={20} />

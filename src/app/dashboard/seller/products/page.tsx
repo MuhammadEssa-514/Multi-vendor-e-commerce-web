@@ -4,6 +4,7 @@ import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 import { Package, Search, Filter, Plus } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import ProductRowActions from "./ProductRowActions";
 
 async function getSellerProducts(sellerId: string) {
@@ -87,9 +88,9 @@ export default async function SellerProductsPage() {
                                     <tr key={product._id} className="hover:bg-blue-50/20 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+                                                <div className="w-14 h-14 bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm relative">
                                                     {product.images?.[0] ? (
-                                                        <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                                                        <Image src={product.images[0]} alt="" fill sizes="56px" className="object-cover" />
                                                     ) : (
                                                         <Package className="w-full h-full p-4 text-gray-300" />
                                                     )}

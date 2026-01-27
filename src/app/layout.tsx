@@ -6,7 +6,6 @@ import { Providers } from "@/components/providers";
 import Navbar from "@/components/navbar";
 import WelcomePopup from "@/components/WelcomePopup";
 import { Toaster } from "sonner";
-
 import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });

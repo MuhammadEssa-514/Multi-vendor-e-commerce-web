@@ -4,6 +4,7 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { Trash2, Users, Mail, Calendar } from "lucide-react";
 import { revalidatePath } from "next/cache";
+import Image from "next/image";
 
 // Server Actions
 async function deleteCustomer(formData: FormData) {
@@ -73,9 +74,9 @@ export default async function ManageCustomersPage() {
                                     <tr key={user._id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
+                                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold overflow-hidden relative">
                                                     {user.image ? (
-                                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                                        <Image src={user.image} alt={user.name} fill sizes="32px" className="object-cover" />
                                                     ) : (
                                                         user.name?.charAt(0) || "U"
                                                     )}

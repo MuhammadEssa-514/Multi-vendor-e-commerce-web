@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { User } from "lucide-react";
 
 interface UserAvatarProps {
@@ -49,12 +50,14 @@ export default function UserAvatar({ size = "md", showName = false, label }: Use
                     {label && <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-1">{label}</p>}
                 </div>
             )}
-            <div className={`${sizeClasses[size]} rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0`}>
+            <div className={`${sizeClasses[size]} rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 relative`}>
                 {image ? (
-                    <img
+                    <Image
                         src={image}
                         alt={name}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="48px"
+                        className="object-cover"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">

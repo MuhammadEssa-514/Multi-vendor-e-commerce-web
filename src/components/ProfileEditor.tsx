@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { User, Mail, Shield, Camera, Lock, Store, FileText, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -162,7 +163,13 @@ export default function ProfileEditor({ userData, sellerData }: ProfileEditorPro
                             <div className="relative group">
                                 <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-md relative">
                                     {image ? (
-                                        <img src={image} alt="Profile" className="w-full h-full object-cover" />
+                                        <Image
+                                            src={image}
+                                            alt="Profile"
+                                            fill
+                                            sizes="96px"
+                                            className="object-cover"
+                                        />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                             <User size={40} />

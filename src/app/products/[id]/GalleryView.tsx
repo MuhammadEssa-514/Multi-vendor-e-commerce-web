@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function GalleryView({ images, name }: { images: string[], name: string }) {
@@ -18,10 +19,13 @@ export default function GalleryView({ images, name }: { images: string[], name: 
         <div className="space-y-6">
             {/* Main Image */}
             <div className="relative aspect-square border border-gray-100 rounded-[2.5rem] overflow-hidden bg-white group shadow-sm">
-                <img
+                <Image
                     src={images[activeIndex]}
                     alt={name}
-                    className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700 ease-out"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
+                    className="object-contain p-6 group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
 
                 {images.length > 1 && (
@@ -52,7 +56,9 @@ export default function GalleryView({ images, name }: { images: string[], name: 
                             className={`relative w-16 h-16 rounded-2xl overflow-hidden border transition-all flex-shrink-0 bg-white p-1.5 ${activeIndex === idx ? "border-orange-500 ring-4 ring-orange-50" : "border-gray-100 hover:border-gray-300"
                                 }`}
                         >
-                            <img src={img} alt={`${name} thumb ${idx}`} className="w-full h-full object-cover rounded-xl" />
+                            <div className="relative w-full h-full">
+                                <Image src={img} alt={`${name} thumb ${idx}`} fill sizes="64px" className="object-cover rounded-xl" />
+                            </div>
                         </button>
                     ))}
                 </div>

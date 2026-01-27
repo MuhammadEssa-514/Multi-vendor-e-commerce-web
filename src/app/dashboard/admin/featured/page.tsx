@@ -5,6 +5,7 @@ import Product from "@/models/Product";
 import Seller from "@/models/Seller";
 import { Search, Star, Clock, Trash2, Zap, CheckCircle } from "lucide-react";
 import { revalidatePath } from "next/cache";
+import Image from "next/image";
 
 // Server Actions
 async function toggleFeature(formData: FormData) {
@@ -122,8 +123,8 @@ export default async function FeaturedProductsPage({ searchParams }: { searchPar
                                 {searchResults.map((product: any) => (
                                     <div key={product._id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-gray-50">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
-                                                {product.images[0] && <img src={product.images[0]} className="w-full h-full object-cover" />}
+                                            <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden relative">
+                                                {product.images[0] && <Image src={product.images[0]} alt={product.name} fill sizes="48px" className="object-cover" />}
                                             </div>
                                             <div>
                                                 <p className="font-bold text-gray-900">{product.name}</p>
@@ -176,8 +177,8 @@ export default async function FeaturedProductsPage({ searchParams }: { searchPar
                                     <tr key={product._id} className="hover:bg-amber-50/10 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                    {product.images[0] && <img src={product.images[0]} className="w-full h-full object-cover" />}
+                                                <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                                    {product.images[0] && <Image src={product.images[0]} alt={product.name} fill sizes="40px" className="object-cover" />}
                                                 </div>
                                                 <span className="font-bold text-gray-900">{product.name}</span>
                                             </div>

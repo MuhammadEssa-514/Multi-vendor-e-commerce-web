@@ -9,6 +9,7 @@ import OrderTabs from "./OrderTabs";
 import OrderSearch from "./OrderSearch";
 import OrderActions from "./OrderActions";
 import { ListFilter, Package, Truck, CheckCircle, Mail, MapPin, Phone, Calendar } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -201,8 +202,8 @@ export default async function SellerOrdersPage({
                                                     <tr key={idx}>
                                                         <td className="px-4 py-3">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                                    {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <Package className="w-full h-full p-2 text-gray-300" />}
+                                                                <div className="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                                                    {item.image ? <Image src={item.image} alt={item.name} fill sizes="32px" className="object-cover" /> : <Package className="w-full h-full p-2 text-gray-300" />}
                                                                 </div>
                                                                 <span className="font-bold text-gray-700 truncate max-w-[150px]">{item.name}</span>
                                                             </div>

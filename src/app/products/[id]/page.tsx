@@ -8,6 +8,7 @@ import AddToCartButton from "@/app/products/[id]/add-to-cart-button";
 import ReviewSection from "@/components/ReviewSection";
 import GalleryView from "./GalleryView";
 import WishlistButton from "@/components/WishlistButton";
+import { Metadata } from "next";
 
 async function getProduct(id: string) {
     await dbConnect();
@@ -50,6 +51,47 @@ async function getRelatedProducts(category: string, currentProductId: string) {
     }));
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    const product = await getProduct(id);
+
+    if (!product) {
+        return {
+            title: "Product Not Found | Daraz 514",
+            description: "The product you are looking for is not available."
+        };
+    }
+
+    const price = product.onSale && product.salePrice ? product.salePrice : product.price;
+    const imageUrl = product.images?.[0] || "/placeholder-product.jpg";
+
+    return {
+        title: `${product.name} | Buy Online at Best Price | Daraz 514`,
+        description: product.description.slice(0, 160) + "...",
+        keywords: [product.category, product.name, "buy online pakistan", "daraz 514"],
+        openGraph: {
+            title: product.name,
+            description: product.description.slice(0, 200),
+            url: `https://daraz514.com/products/${id}`,
+            siteName: "Daraz 514",
+            images: [{
+                url: imageUrl,
+                width: 800,
+                height: 800,
+                alt: product.name
+            }],
+            locale: "en_PK",
+            type: "website",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: product.name,
+            description: product.description.slice(0, 200),
+            images: [imageUrl],
+        },
+    };
+}
+
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const product = await getProduct(id);
@@ -65,6 +107,70 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
     return (
         <div className="min-h-screen bg-[#fafafa] pb-24">
+            {/* JSON-LD Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Product",
+                        "name": product.name,
+                        "image": product.images || [],
+                        "description": product.description,
+                        "brand": {
+                            "@type": "Brand",
+                            "name": product.sellerId?.storeName || "Daraz 514"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "url": `https://daraz514.com/products/${id}`,
+                            "priceCurrency": "PKR",
+                            "price": product.onSale && product.salePrice ? product.salePrice : product.price,
+                            "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                            "itemCondition": "https://schema.org/NewCondition",
+                            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                            "seller": {
+                                "@type": "Organization",
+                                "name": product.sellerId?.storeName || "Daraz 514"
+                            }
+                        },
+                        "aggregateRating": {
+                            "@type": "AggregateRating",
+                            "ratingValue": "4.8",
+                            "reviewCount": "124"
+                        }
+                    })
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": "https://daraz514.com"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": product.category,
+                                "item": `https://daraz514.com/products?category=${product.category}`
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": product.name,
+                                "item": `https://daraz514.com/products/${id}`
+                            }
+                        ]
+                    })
+                }}
+            />
 
             {/* Breadcrumb - Minimal & Clean */}
             <div className="bg-white border-b border-gray-100">

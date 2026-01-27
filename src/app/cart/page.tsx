@@ -3,6 +3,7 @@
 import { useCart } from "@/context/CartContext";
 import { ShoppingBag as ShoppingBagIcon, Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function CartPage() {
@@ -55,13 +56,17 @@ export default function CartPage() {
                             <ul className="border-t border-b border-gray-200 divide-y divide-gray-200">
                                 {cart.map((product) => (
                                     <li key={product._id} className="flex py-6 sm:py-10">
-                                        <div className="flex-shrink-0">
+                                        <div className="flex-shrink-0 relative">
                                             {product.images?.[0] ? (
-                                                <img
-                                                    src={product.images[0]}
-                                                    alt={product.name}
-                                                    className="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48"
-                                                />
+                                                <div className="w-24 h-24 sm:w-48 sm:h-48 relative rounded-md overflow-hidden">
+                                                    <Image
+                                                        src={product.images[0]}
+                                                        alt={product.name}
+                                                        fill
+                                                        sizes="(max-width: 640px) 96px, 192px"
+                                                        className="object-center object-cover"
+                                                    />
+                                                </div>
                                             ) : (
                                                 <div className="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center">No Image</div>
                                             )}

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Package, DollarSign, Settings, Lock, Clock } from "lucide-react";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
@@ -144,9 +145,9 @@ export default async function SellerDashboard() {
                                     <tr key={product._id} className="hover:bg-blue-50/30 transition-colors group cursor-default">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden border border-gray-100 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+                                                <div className="w-12 h-12 bg-gray-100 rounded-xl overflow-hidden border border-gray-100 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm relative">
                                                     {product.images?.[0] ? (
-                                                        <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                                                        <Image src={product.images[0]} alt="" fill sizes="48px" className="object-cover" />
                                                     ) : (
                                                         <Package className="w-full h-full p-3 text-gray-300" />
                                                     )}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Upload, X, Loader2, Plus, ImageIcon, Sparkles, Tag, DollarSign, Clock, Smartphone, Home, Shirt, Dumbbell, Car, Wrench, BookOpen, Gamepad2 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 
@@ -119,7 +120,7 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                     price: Number(formData.price),
                     salePrice: formData.onSale && formData.salePrice ? Number(formData.salePrice) : null,
                     stock: Number(formData.stock),
-                    tags: formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [],
+                    tags: formData.tags ? formData.tags.split(",").map((tag: string) => tag.trim()) : [],
                     images: imageGallery,
                     attributes: attributes
                 }),
@@ -539,7 +540,13 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                     <div className="grid grid-cols-2 gap-3 mb-4">
                         {imageGallery.map((url, idx) => (
                             <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden group shadow-sm">
-                                <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                <Image
+                                    src={url}
+                                    alt=""
+                                    fill
+                                    sizes="(max-width: 768px) 50vw, 33vw"
+                                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}
