@@ -4,6 +4,8 @@ import dbConnect from "@/lib/db";
 import Seller from "@/models/Seller";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
     const session = await auth();
     if (!session || (session.user as any).role !== "admin") {
