@@ -1,4 +1,5 @@
 
+/// <reference types="node" />
 import mongoose from "mongoose";
 import User from "./src/models/User";
 import Seller from "./src/models/Seller";
