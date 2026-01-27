@@ -29,6 +29,16 @@ const UserSchema = new mongoose.Schema({
     resetPasswordExpire: {
         type: Date,
     },
+    isEmailVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationOTP: {
+        type: String,
+    },
+    verificationOTPExpire: {
+        type: Date,
+    },
     totalCommissionEarned: {
         type: Number,
         default: 0, // Only relevant for admins - total money earned from all sales

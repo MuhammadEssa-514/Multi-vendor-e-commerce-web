@@ -16,7 +16,7 @@ const NotificationSchema = new Schema(
         },
         type: {
             type: String,
-            enum: ["order_received", "order_status_update", "system"],
+            enum: ["order_received", "order_status_update", "system", "seller_approval"],
             required: true,
         },
         title: { type: String, required: true },

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Package, Info } from "lucide-react";
+import { Bell, Package, Info, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 export default function NotificationCenter() {
@@ -74,7 +74,13 @@ export default function NotificationCenter() {
                                 >
                                     <div className="flex gap-3">
                                         <div className="flex-shrink-0 mt-1">
-                                            {notif.type === "order_received" ? <Package className="text-blue-600" size={16} /> : <Info className="text-gray-400" size={16} />}
+                                            {notif.type === "order_received" ? (
+                                                <Package className="text-blue-600" size={16} />
+                                            ) : notif.type === "seller_approval" ? (
+                                                <ShoppingBag className="text-emerald-600" size={16} />
+                                            ) : (
+                                                <Info className="text-gray-400" size={16} />
+                                            )}
                                         </div>
                                         <div>
                                             <p className={`text-sm ${!notif.isRead ? "font-bold text-gray-900" : "text-gray-600"}`}>{notif.title}</p>

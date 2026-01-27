@@ -11,6 +11,7 @@ export const authConfig = {
             if (user) {
                 token.role = (user as any).role;
                 token.id = user.id;
+                token.isEmailVerified = (user as any).isEmailVerified;
             }
             return token;
         },
@@ -18,6 +19,7 @@ export const authConfig = {
             if (session.user) {
                 (session.user as any).role = token.role as string;
                 (session.user as any).id = token.id as string;
+                (session.user as any).isEmailVerified = token.isEmailVerified as boolean;
             }
             return session;
         },

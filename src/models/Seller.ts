@@ -36,6 +36,10 @@ const SellerSchema = new Schema(
             type: Number,
             default: 0, // Total commission paid to platform owner
         },
+        welcomeShown: {
+            type: Boolean,
+            default: false, // For showing welcome popup
+        },
     },
     { timestamps: true },
 );

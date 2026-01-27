@@ -7,6 +7,7 @@ import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 import Seller from "@/models/Seller";
 import NotificationCenter from "@/components/notification-center";
+import SellerWelcomeWrapper from "./SellerWelcomeWrapper";
 
 async function getSellerProducts(sellerId: string) {
     await dbConnect();
@@ -29,33 +30,15 @@ export default async function SellerDashboard() {
         redirect("/dashboard");
     }
 
-    // Check if seller is approved
-    await dbConnect();
     const sellerProfile = await Seller.findOne({ userId: (session.user as any).id });
-
-    if (!sellerProfile || !sellerProfile.approved) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-                    <Lock className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Pending Approval</h1>
-                    <p className="text-gray-600 mb-6">
-                        {sellerProfile ? `Your store "${sellerProfile.storeName}" is waiting for admin approval.` : "Seller profile not found. Please contact support."}
-                    </p>
-                    <div className="flex justify-center">
-                        <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                            Return to Main Dashboard
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     const products = await getSellerProducts((session.user as any).id);
 
     return (
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+            <SellerWelcomeWrapper
+                storeName={sellerProfile.storeName}
+                welcomeShown={sellerProfile.welcomeShown}
+            />
             <div className="mb-8">
                 <h2 className="text-3xl font-black text-gray-900">Dashboard Overview</h2>
                 <p className="text-gray-500 mt-1">Track your store's performance and manage your inventory.</p>

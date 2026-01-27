@@ -6,7 +6,7 @@ import Seller from "@/models/Seller";
 import User from "@/models/User";
 import Order from "@/models/Order";
 import "@/models/Product"; // Ensure Product model is registered for Order refs
-import { Check, X, Shield, DollarSign, Package, Users, TrendingUp } from "lucide-react";
+import { Check, X, Shield, DollarSign, Package, Users, TrendingUp, ShieldCheck } from "lucide-react";
 import ApproveButton from "./ApproveButton";
 
 // Server action/utils
@@ -46,7 +46,11 @@ async function getPendingSellers() {
             userId: seller.userId.toString(),
             createdAt: seller.createdAt.toString(),
             updatedAt: seller.updatedAt.toString(),
-            user: user ? { name: user.name, email: user.email } : null
+            user: user ? {
+                name: user.name,
+                email: user.email,
+                isVerified: user.isEmailVerified
+            } : null
         };
     }));
 

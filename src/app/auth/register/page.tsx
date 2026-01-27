@@ -38,7 +38,9 @@ export default function RegisterPage() {
                 throw new Error(data.error || "Registration failed");
             }
 
-            router.push("/auth/signin");
+            const data = await res.json();
+            // Redirect to verify-email page with the new userId
+            router.push(`/verify-email?userId=${data.userId}`);
         } catch (err: any) {
             setError(err.message);
         } finally {

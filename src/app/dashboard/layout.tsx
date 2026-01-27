@@ -3,10 +3,11 @@
 import CustomerSidebar from "@/components/CustomerSidebar";
 import NotificationCenter from "@/components/notification-center";
 import { Menu, User, ShoppingBag } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import UserAvatar from "@/components/UserAvatar";
+import { ShieldAlert, ExternalLink } from "lucide-react";
 
 import AdminSidebar from "@/components/AdminSidebar";
 
@@ -16,6 +17,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const { data: session } = useSession();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -24,9 +26,45 @@ export default function DashboardLayout({
         return <>{children}</>;
     }
     const isAdmin = (session?.user as any)?.role === "admin";
+    const isEmailVerified = (session?.user as any)?.isEmailVerified;
 
     return (
-        <div className="flex h-screen bg-gray-50/50 overflow-hidden">
+        <div className="flex h-screen bg-gray-50/50 overflow-hidden relative">
+            {/* Verification Guard Overlay - Blocks everything for unverified users */}
+            {session?.user && !isEmailVerified && !isAdmin && (
+                <div className="fixed inset-0 z-[100] bg-white/60 backdrop-blur-xl flex items-center justify-center p-6 text-center animate-in fade-in duration-500">
+                    <div className="bg-white p-12 rounded-[3.5rem] shadow-2xl max-w-lg w-full border border-indigo-100/50 relative overflow-hidden group">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-violet-500" />
+
+                        <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-8 text-indigo-600 group-hover:scale-110 transition-transform duration-500">
+                            <ShieldAlert size={48} strokeWidth={1.5} />
+                        </div>
+
+                        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Security Check Required</h2>
+                        <p className="text-gray-500 font-medium mb-10 leading-relaxed">
+                            To protect our marketplace, you must verify your email address <span className="text-indigo-600 font-bold">{session.user.email}</span> before accessing your dashboard.
+                        </p>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => router.push(`/verify-email?userId=${(session.user as any).id}`)}
+                                className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3"
+                            >
+                                Verify Account Details <ExternalLink size={18} />
+                            </button>
+                            <button
+                                onClick={() => signOut()}
+                                className="w-full py-4 bg-gray-50 text-gray-400 rounded-3xl font-bold text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+
+                        <p className="mt-8 text-[10px] text-gray-300 font-black uppercase tracking-[0.2em]">Adaptive Security v2.4</p>
+                    </div>
+                </div>
+            )}
+
             {/* Sidebar (Admin vs Customer) - Desktop */}
             {isAdmin ? <AdminSidebar /> : <CustomerSidebar />}
 
