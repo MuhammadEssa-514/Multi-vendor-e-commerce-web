@@ -72,36 +72,36 @@ export default function ConfirmationModal({
             />
 
             {/* Modal Container */}
-            <div className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in duration-150 border border-gray-100">
-                <div className="p-8">
+            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-[320px] overflow-hidden animate-in fade-in duration-150 border border-gray-100">
+                <div className="p-6">
                     {/* Header Icon */}
-                    <div className={`w-14 h-14 ${currentColors.bg} rounded-2xl flex items-center justify-center mb-6`}>
-                        {type === "danger" && <AlertTriangle className={currentColors.icon} size={28} />}
-                        {type === "success" && <CheckCircle className={currentColors.icon} size={28} />}
-                        {type === "info" && <Info className={currentColors.icon} size={28} />}
+                    <div className={`w-12 h-12 ${currentColors.bg} rounded-xl flex items-center justify-center mb-4`}>
+                        {type === "danger" && <AlertTriangle className={currentColors.icon} size={22} />}
+                        {type === "success" && <CheckCircle className={currentColors.icon} size={22} />}
+                        {type === "info" && <Info className={currentColors.icon} size={22} />}
                     </div>
 
                     {/* Content */}
-                    <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 tracking-tight">
                         {title}
                     </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                    <p className="text-gray-500 text-xs leading-relaxed mb-6">
                         {message}
                     </p>
 
                     {/* Actions */}
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
                         <button
                             onClick={onConfirm}
                             disabled={isLoading}
-                            className={`w-full py-4 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 ${currentColors.button}`}
+                            className={`w-full py-3 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-md active:scale-[0.98] disabled:opacity-50 ${currentColors.button}`}
                         >
                             {isLoading ? "Processing..." : confirmText}
                         </button>
                         <button
                             onClick={onClose}
                             disabled={isLoading}
-                            className="w-full py-4 bg-gray-50 text-gray-500 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-100 transition-all active:scale-[0.98] disabled:opacity-50"
+                            className="w-full py-3 bg-gray-50 text-gray-500 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-100 transition-all active:scale-[0.98] disabled:opacity-50"
                         >
                             {cancelText}
                         </button>
@@ -111,9 +111,9 @@ export default function ConfirmationModal({
                 {/* Close Button Mobile */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 text-gray-300 hover:text-gray-500 transition-colors"
+                    className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-gray-500 transition-colors"
                 >
-                    <X size={20} />
+                    <X size={16} />
                 </button>
             </div>
         </div>

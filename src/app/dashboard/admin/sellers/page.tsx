@@ -5,8 +5,10 @@ import Seller from "@/models/Seller";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import { revalidatePath } from "next/cache";
-import { Trash2, CheckCircle, XCircle, Store, Mail, Calendar, Search, Users } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, Store, Mail, Calendar, Search, Users, Eye } from "lucide-react";
 import Image from "next/image";
+import ViewSellerButton from "../ViewSellerButton";
+import SellerActionButtons from "../SellerActionButtons";
 
 // Server Actions
 async function toggleApproval(formData: FormData) {
@@ -192,29 +194,14 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <form action={toggleApproval}>
-                                                    <input type="hidden" name="sellerId" value={seller._id} />
-                                                    <button
-                                                        type="submit"
-                                                        className={`p-2 rounded-lg transition-colors ${seller.approved
-                                                            ? 'text-amber-500 hover:bg-amber-50'
-                                                            : 'text-emerald-500 hover:bg-emerald-50'
-                                                            }`}
-                                                        title={seller.approved ? "Suspend" : "Approve"}
-                                                    >
-                                                        {seller.approved ? <XCircle size={18} /> : <CheckCircle size={18} />}
-                                                    </button>
-                                                </form>
-                                                <form action={handleDelete}>
-                                                    <input type="hidden" name="sellerId" value={seller._id} />
-                                                    <button
-                                                        type="submit"
-                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Delete Seller"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </form>
+                                                <ViewSellerButton seller={seller} />
+                                                <SellerActionButtons
+                                                    sellerId={seller._id}
+                                                    isApproved={seller.approved}
+                                                    storeName={seller.storeName}
+                                                    toggleApproval={toggleApproval}
+                                                    handleDelete={handleDelete}
+                                                />
                                             </div>
                                         </td>
                                     </tr>
