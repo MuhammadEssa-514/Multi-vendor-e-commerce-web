@@ -1,33 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { Eye } from "lucide-react";
-import SellerDetailsModal from "./SellerDetailsModal";
+import { useSellerActions } from "./SellerActionsManager";
 
 interface ViewSellerButtonProps {
     seller: any;
 }
 
 export default function ViewSellerButton({ seller }: ViewSellerButtonProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const { openModal } = useSellerActions();
 
     return (
-        <>
-            <button
-                onClick={() => setIsOpen(true)}
-                className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
-                title="View Details"
-            >
-                <Eye size={18} />
-            </button>
-
-            {isOpen && (
-                <SellerDetailsModal
-                    isOpen={isOpen}
-                    onClose={() => setIsOpen(false)}
-                    seller={seller}
-                />
-            )}
-        </>
+        <button
+            onClick={() => openModal("view", seller)}
+            className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+            title="View Details"
+        >
+            <Eye size={18} />
+        </button>
     );
 }

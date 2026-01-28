@@ -45,11 +45,11 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-0.5">
                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Owner</p>
-                            <p className="text-xs font-bold text-gray-900 truncate">{seller.user?.name}</p>
+                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.name}</p>
                         </div>
                         <div className="space-y-0.5">
                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Contact</p>
-                            <p className="text-xs font-bold text-gray-900 truncate">{seller.user?.email}</p>
+                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.email}</p>
                         </div>
                         <div className="space-y-0.5">
                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status</p>
@@ -69,15 +69,15 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
                     <div className="grid grid-cols-3 gap-2">
                         <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
                             <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Stock</p>
-                            <p className="text-sm font-black text-gray-900">{seller.productCount}</p>
+                            <p className="text-xs font-bold text-gray-900">{seller.productCount}</p>
                         </div>
                         <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
                             <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Balance</p>
-                            <p className="text-sm font-black text-gray-900">₨{seller.balance.toLocaleString()}</p>
+                            <p className="text-xs font-bold text-gray-900">₨{seller.balance.toLocaleString()}</p>
                         </div>
                         <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
                             <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Total</p>
-                            <p className="text-sm font-black text-gray-900">₨{seller.totalEarnings.toLocaleString()}</p>
+                            <p className="text-xs font-bold text-gray-900">₨{seller.totalEarnings.toLocaleString()}</p>
                         </div>
                     </div>
 
