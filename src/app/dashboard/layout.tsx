@@ -5,7 +5,7 @@ import NotificationCenter from "@/components/notification-center";
 import { Menu, User, ShoppingBag } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserAvatar from "@/components/UserAvatar";
 import { ShieldAlert, ExternalLink } from "lucide-react";
 
@@ -20,13 +20,24 @@ export default function DashboardLayout({
     const router = useRouter();
     const { data: session } = useSession();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Skip this layout for seller dashboard routes as they have their own
     if (pathname?.startsWith("/dashboard/seller")) {
         return <>{children}</>;
     }
+
     const isAdmin = (session?.user as any)?.role === "admin";
     const isEmailVerified = (session?.user as any)?.isEmailVerified;
+
+    // Prevent hydration mismatch by only rendering session-dependent UI after mount
+    if (!mounted) {
+        return <div className="flex h-screen bg-gray-50/50 items-center justify-center text-gray-300 font-bold text-xs uppercase tracking-widest">Initialising Secure Workspace...</div>;
+    }
 
     return (
         <div className="flex h-screen bg-gray-50/50 overflow-hidden relative">
@@ -89,7 +100,7 @@ export default function DashboardLayout({
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Dashboard Header */}
-                <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 flex-shrink-0">
+                <header className="bg-white border-b border-gray-100 sticky top-0 z-40 flex-shrink-0 shadow-sm">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between w-full">
                         {/* Mobile Menu & Logo */}
                         <div className="flex items-center gap-4 lg:hidden">

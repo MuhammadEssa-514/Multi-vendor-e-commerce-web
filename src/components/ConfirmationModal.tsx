@@ -67,12 +67,12 @@ export default function ConfirmationModal({
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+                className="absolute inset-0 bg-gray-900/40 animate-in fade-in duration-150"
                 onClick={onClose}
             />
 
             {/* Modal Container */}
-            <div className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-300 border border-gray-100">
+            <div className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in duration-150 border border-gray-100">
                 <div className="p-8">
                     {/* Header Icon */}
                     <div className={`w-14 h-14 ${currentColors.bg} rounded-2xl flex items-center justify-center mb-6`}>

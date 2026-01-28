@@ -22,7 +22,6 @@ export async function PATCH(
         const { id } = await params;
         const { status, trackingNumber, courier } = await req.json();
 
-        console.log(`Updating order ${id} to status ${status} for seller ${(session.user as any).id}`);
 
         if (!["pending", "shipped", "delivered"].includes(status)) {
             return NextResponse.json({ error: "Invalid status" }, { status: 400 });
@@ -33,7 +32,6 @@ export async function PATCH(
         // Find the order
         const order = await Order.findById(id);
         if (!order) {
-            console.log("Order not found:", id);
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
@@ -43,7 +41,6 @@ export async function PATCH(
         );
 
         if (!isSellerOrder) {
-            console.log("Unauthorized seller access for order", id);
             return NextResponse.json({ error: "Unauthorized access to this order" }, { status: 403 });
         }
 
@@ -52,7 +49,6 @@ export async function PATCH(
         if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
         if (courier !== undefined) updateData.courier = courier;
 
-        console.log("DB Update Payload:", updateData);
 
         const updatedOrder = await Order.findByIdAndUpdate(
             id,
@@ -64,7 +60,6 @@ export async function PATCH(
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
-        console.log("Order updated successfully in DB. Tracking:", updatedOrder.trackingNumber);
 
         // Clear caches for all related dashboards
         revalidatePath("/dashboard/orders");
@@ -102,7 +97,6 @@ export async function PATCH(
                     tx.status = "completed";
                     await tx.save();
                 }
-                console.log(`Financial settlement completed for order ${id}`);
             } catch (finErr) {
                 console.error("Financial settlement failed:", finErr);
             }
@@ -119,7 +113,6 @@ export async function PATCH(
                 message: `Your order #${order._id.toString().slice(-6)} is now ${status}.${trackingNumber ? ` Tracking: ${trackingNumber} via ${courier}` : ""}`,
                 orderId: order._id,
             });
-            console.log("Notification created for customer:", order.customerId);
         } catch (notifErr) {
             console.error("Failed to create update notification:", notifErr);
         }

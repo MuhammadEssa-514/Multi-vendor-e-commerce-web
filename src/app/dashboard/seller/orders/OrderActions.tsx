@@ -40,7 +40,6 @@ export default function OrderActions({
         }
 
         setLoading(true);
-        console.log("Attempting to update order status:", { orderId, newStatus, trackingNumber, courier });
         try {
             const res = await fetch(`/api/orders/${orderId}`, {
                 method: "PATCH",
@@ -54,7 +53,6 @@ export default function OrderActions({
 
             const data = await res.json();
             if (data.success) {
-                console.log("Order status update successful response");
                 alert("Success: Logistics Tracking Information Saved!");
                 setShowTrackingInput(false);
                 router.refresh(); // Refresh the server component data

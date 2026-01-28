@@ -12,8 +12,8 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
     if (!isOpen || !seller) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-500">
-            <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in duration-500 border border-white/20">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-300">
+            <div className="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full overflow-hidden animate-in zoom-in duration-300 border border-gray-100">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-gray-900 to-indigo-950 p-8 text-white relative">
                     <button
@@ -24,7 +24,7 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
                     </button>
 
                     <div className="flex items-center gap-6">
-                        <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center overflow-hidden border border-white/20">
+                        <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center overflow-hidden border border-white/20">
                             {seller.user?.image ? (
                                 <img src={seller.user.image} alt={seller.storeName} className="w-full h-full object-cover" />
                             ) : (
@@ -78,7 +78,9 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
                                         <div className="p-2 bg-white rounded-xl shadow-sm"><Calendar size={16} className="text-gray-400" /></div>
                                         <div>
                                             <p className="text-[10px] text-gray-400 font-bold uppercase">Member Since</p>
-                                            <p className="text-sm font-black text-gray-900">{new Date(seller.createdAt).toLocaleDateString()}</p>
+                                            <p className="text-sm font-black text-gray-900">
+                                                {new Date(seller.createdAt).toISOString().split('T')[0]}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -99,17 +101,17 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
                                 <div className="p-4 bg-blue-50 rounded-3xl border border-blue-100">
                                     <Wallet size={20} className="text-blue-600 mb-2" />
                                     <p className="text-[10px] text-blue-600 font-bold uppercase">Balance</p>
-                                    <p className="text-xl font-black text-gray-900">${seller.balance.toLocaleString()}</p>
+                                    <p className="text-xl font-black text-gray-900">₨ {seller.balance.toLocaleString()}</p>
                                 </div>
                                 <div className="p-4 border border-gray-100 rounded-3xl col-span-2">
                                     <div className="flex justify-between items-end">
                                         <div>
                                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Lifetime Earnings</p>
-                                            <p className="text-2xl font-black text-gray-900">${seller.totalEarnings.toLocaleString()}</p>
+                                            <p className="text-2xl font-black text-gray-900">₨ {seller.totalEarnings.toLocaleString()}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Commission Paid</p>
-                                            <p className="text-lg font-black text-indigo-600">${(seller.commissionPaid || 0).toLocaleString()}</p>
+                                            <p className="text-lg font-black text-indigo-600">₨ {(seller.commissionPaid || 0).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 </div>

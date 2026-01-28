@@ -15,26 +15,28 @@ const SellerSchema = new Schema(
         },
         approved: {
             type: Boolean,
-            default: false, // Sellers need admin approval
+            default: false,
+            index: true,
         },
         bio: {
             type: String,
         },
         balance: {
             type: Number,
-            default: 0, // Current amount available for withdrawal
+            default: 0,
         },
         totalEarnings: {
             type: Number,
-            default: 0, // Total revenue generated ever
+            default: 0,
         },
         pendingEarnings: {
             type: Number,
-            default: 0, // Earnings from orders not yet delivered
+            default: 0,
         },
         commissionPaid: {
             type: Number,
-            default: 0, // Total commission paid to platform owner
+            default: 0,
+            index: true,
         },
         welcomeShown: {
             type: Boolean,

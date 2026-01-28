@@ -36,25 +36,40 @@ async function getAdminStats(adminId: string) {
 
 async function getPendingSellers() {
     await dbConnect();
-    const sellers = await Seller.find({ approved: false }).sort({ createdAt: -1 }).lean();
 
-    const sellersWithUser = await Promise.all(sellers.map(async (seller: any) => {
-        const user = await User.findById(seller.userId).lean();
-        return {
-            ...seller,
-            _id: seller._id.toString(),
-            userId: seller.userId.toString(),
-            createdAt: seller.createdAt.toString(),
-            updatedAt: seller.updatedAt.toString(),
-            user: user ? {
-                name: user.name,
-                email: user.email,
-                isVerified: user.isEmailVerified
-            } : null
-        };
+    const sellers = await Seller.aggregate([
+        { $match: { approved: false } },
+        { $sort: { createdAt: -1 } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+        {
+            $project: {
+                "user.password": 0,
+                "user.verificationOTP": 0,
+                "user.verificationOTPExpire": 0,
+            }
+        }
+    ]);
+
+    return sellers.map((seller: any) => ({
+        ...seller,
+        _id: seller._id.toString(),
+        userId: seller.userId.toString(),
+        createdAt: seller.createdAt.toString(),
+        updatedAt: seller.updatedAt.toString(),
+        user: seller.user ? {
+            name: seller.user.name,
+            email: seller.user.email,
+            isVerified: seller.user.isEmailVerified
+        } : null
     }));
-
-    return sellersWithUser;
 }
 
 export default async function AdminDashboard() {
@@ -153,7 +168,11 @@ export default async function AdminDashboard() {
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <ApproveButton sellerId={seller._id} />
+                                            <ApproveButton
+                                                sellerId={seller._id}
+                                                storeName={seller.storeName}
+                                                isApproved={seller.approved}
+                                            />
                                         </div>
                                     </div>
                                 </li>
