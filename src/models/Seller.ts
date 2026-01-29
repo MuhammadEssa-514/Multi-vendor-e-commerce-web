@@ -38,6 +38,16 @@ const SellerSchema = new Schema(
             default: 0,
             index: true,
         },
+        cnic: {
+            type: String,
+            required: [true, "Please provide CNIC number"],
+            unique: true,
+            index: true,
+        },
+        phoneNumber: {
+            type: String,
+            required: [true, "Please provide a mobile number"],
+        },
         welcomeShown: {
             type: Boolean,
             default: false, // For showing welcome popup

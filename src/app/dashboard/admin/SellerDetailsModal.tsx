@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Store, User, Mail, Calendar, BarChart3, Wallet, ShoppingBag, ShieldCheck } from "lucide-react";
+import { X, Store, User, Mail, Calendar, BarChart3, Wallet, ShoppingBag, ShieldCheck, Phone, Globe } from "lucide-react";
 
 interface SellerDetailsModalProps {
     isOpen: boolean;
@@ -42,26 +42,52 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
 
                 <div className="p-4 sm:p-5 space-y-6">
                     {/* Info Columns */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                         <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Owner</p>
-                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.name}</p>
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Owner Name</p>
+                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.name || "N/A"}</p>
                         </div>
                         <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Contact</p>
-                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.email}</p>
+                            <div className="flex items-center gap-1">
+                                <ShieldCheck size={10} className="text-orange-500" />
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">CNIC Identity</p>
+                            </div>
+                            <p className="text-xs font-black text-gray-900 truncate">{seller.cnic || "Not Provided"}</p>
                         </div>
                         <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status</p>
+                            <div className="flex items-center gap-1">
+                                <Phone size={10} className="text-emerald-500" />
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Mobile Number</p>
+                            </div>
+                            <p className="text-xs font-black text-gray-900 truncate">{seller.phoneNumber || "Not Provided"}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                            <div className="flex items-center gap-1">
+                                <Globe size={10} className="text-blue-500" />
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Geography</p>
+                            </div>
+                            <p className="text-xs font-black text-gray-900 truncate">
+                                {seller.city || "N/A"}, {seller.country || "N/A"}
+                            </p>
+                        </div>
+                        <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Corporate Email</p>
+                            <p className="text-xs font-bold text-gray-900 truncate lowercase">{seller.userId?.email || "N/A"}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Verification Status</p>
                             <div>
                                 <span className={`inline-flex px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase border ${seller.approved ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                    {seller.approved ? 'Approved' : 'Pending'}
+                                    {seller.approved ? 'Verified Merchant' : 'Verification Pending'}
                                 </span>
                             </div>
                         </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Joined</p>
-                            <p className="text-xs font-bold text-gray-900">{new Date(seller.createdAt).toISOString().split('T')[0]}</p>
+                        <div className="space-y-0.5 col-span-full">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Merchant Since</p>
+                            <div className="flex items-center gap-2">
+                                <Calendar size={12} className="text-gray-400" />
+                                <p className="text-xs font-bold text-gray-900">{new Date(seller.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                            </div>
                         </div>
                     </div>
 

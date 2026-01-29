@@ -4,6 +4,7 @@ import dbConnect from "@/lib/db";
 import Seller from "@/models/Seller";
 import User from "@/models/User";
 import Product from "@/models/Product";
+import Notification from "@/models/Notification";
 import { revalidatePath } from "next/cache";
 import { Trash2, CheckCircle, XCircle, Store, Mail, Calendar, Search, Users, Eye } from "lucide-react";
 import ViewSellerButton from "../ViewSellerButton";
@@ -22,6 +23,20 @@ async function toggleApproval(formData: FormData) {
 
     seller.approved = !seller.approved;
     await seller.save();
+
+    // Notify the Seller about the status change
+    try {
+        await Notification.create({
+            recipientId: seller.userId,
+            recipientModel: "User",
+            type: "seller_approval",
+            title: "Account Status Update",
+            message: `Your seller account for "${seller.storeName}" has been ${seller.approved ? "Approved! You can now start listing products." : "set to Pending. Please contact support for more details."}`,
+        });
+    } catch (notifyError) {
+        console.error("Failed to notify seller:", notifyError);
+    }
+
     revalidatePath("/dashboard/admin/sellers");
 }
 
@@ -77,6 +92,10 @@ async function getSellers(query: string = "", page: number = 1, limit: number = 
         ...seller,
         _id: seller._id.toString(),
         createdAt: seller.createdAt.toISOString(),
+        cnic: seller.cnic || "",
+        phoneNumber: seller.phoneNumber || "",
+        city: seller.city || "",
+        country: seller.country || "",
         userId: seller.userId ? {
             ...seller.userId,
             _id: seller.userId._id.toString()
@@ -106,14 +125,14 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
     const { sellers, pagination } = await getSellers(query, page, 20);
 
     return (
-        <div className="p-8">
+        <div className="p-3">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-100">
+                    <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-indigo-100">
                         <Store className="text-white" size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Manage Sellers</h1>
+                        <h1 className="text-2xl font-bold text-blue-600">Manage Sellers</h1>
                         <p className="text-sm text-gray-500 font-medium">Overview of marketplace merchants</p>
                     </div>
                 </div>
@@ -126,7 +145,7 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                             name="q"
                             defaultValue={query}
                             placeholder="Search store name..."
-                            className="pl-11 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-full md:w-64"
+                            className="pl-11 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all w-full md:w-64 text-black"
                         />
                     </form>
                 </div>
@@ -166,6 +185,11 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                                         {seller.storeName?.charAt(0) || "S"}
                                                     </div>
                                                     <span className="font-bold text-gray-900">{seller.storeName}</span>
+                                                    {seller.approved && (
+                                                        <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center border border-white flex-shrink-0" title="Verified Merchant">
+                                                            <CheckCircle size={10} className="text-white fill-current" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -211,7 +235,7 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                     </div>
 
                     {/* Executive Luxury Mobile View - Hidden on Desktop */}
-                    <div className="lg:hidden bg-gray-50/50 p-4 space-y-4">
+                    <div className="lg:hidden bg-gray-50/50 p-2.5 space-y-2.5">
                         {sellers.length === 0 ? (
                             <div className="py-12 text-center text-gray-500 text-sm italic bg-white rounded-2xl border border-gray-100 shadow-sm">
                                 No merchants found matching your criteria.
@@ -220,10 +244,10 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                             sellers.map((seller: any) => (
                                 <div
                                     key={seller._id}
-                                    className="bg-white rounded-[24px] border border-gray-100 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] active:scale-[0.98] transition-all duration-300 relative group overflow-hidden"
+                                    className="bg-gray-200 rounded-[20px] border border-gray-100 p-3.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] active:scale-[0.98] transition-all duration-300 relative group overflow-hidden"
                                 >
-                                    {/* Status Badge: Absolute Positioned for Safety */}
-                                    <div className={`absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md shadow-sm ${seller.approved
+                                    {/* Status Badge: Optimized Position */}
+                                    <div className={`absolute top-3.5 right-3.5 z-10 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border backdrop-blur-md shadow-sm ${seller.approved
                                         ? 'bg-emerald-50/90 text-emerald-700 border-emerald-100'
                                         : 'bg-amber-50/90 text-amber-700 border-amber-100'
                                         }`}>
@@ -234,64 +258,73 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-100/30 transition-colors" />
 
                                     {/* Card Header: Store Profile */}
-                                    <div className="relative flex items-center gap-4 mb-6 pr-20">
-                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100 transform -rotate-2 flex-shrink-0">
+                                    <div className="relative flex items-center gap-3.5 mb-4 pr-16">
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-100 transform -rotate-2 flex-shrink-0">
                                             {seller.storeName?.charAt(0) || "S"}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="text-base font-black text-gray-900 truncate tracking-tight">{seller.storeName}</h3>
-                                            <div className="flex items-center gap-1.5 mt-1">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">Active Merchant</p>
+                                            <div className="flex items-center gap-1.5">
+                                                <h3 className="text-sm font-black text-gray-900 truncate tracking-tight">{seller.storeName}</h3>
+                                                {seller.approved && (
+                                                    <div className="w-3 h-3 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                                                        <CheckCircle size={8} className="text-white fill-current" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                                                    {seller.approved ? "Verified Merchant" : "Pending Verification"}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Card Content: Owner Details */}
-                                    <div className="relative mb-5 space-y-2">
-                                        <div className="flex items-center gap-2.5 min-w-0">
-                                            <div className="w-5 h-5 rounded-md bg-gray-50 flex items-center justify-center border border-gray-100 flex-shrink-0">
-                                                <Users size={10} className="text-gray-400" />
+                                    <div className="relative mb-4 space-y-1.5">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-4.5 h-4.5 rounded-md bg-gray-50 flex items-center justify-center border border-gray-100 flex-shrink-0">
+                                                <Users size={9} className="text-gray-400" />
                                             </div>
-                                            <span className="text-xs font-bold text-gray-700 truncate">{seller.userId?.name}</span>
+                                            <span className="text-[11px] font-bold text-gray-700 truncate">{seller.userId?.name}</span>
                                         </div>
-                                        <div className="flex items-center gap-2.5 min-w-0">
-                                            <div className="w-5 h-5 rounded-md bg-gray-50 flex items-center justify-center border border-gray-100 flex-shrink-0">
-                                                <Mail size={10} className="text-gray-400" />
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-4.5 h-4.5 rounded-md bg-gray-50 flex items-center justify-center border border-gray-100 flex-shrink-0">
+                                                <Mail size={9} className="text-gray-400" />
                                             </div>
-                                            <span className="text-xs font-medium text-gray-500 truncate">{seller.userId?.email}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Card Stats: Clean Grid */}
-                                    <div className="relative grid grid-cols-2 gap-3 mb-6">
-                                        <div className="p-3.5 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-col">
-                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Inventory</span>
-                                            <div className="flex items-baseline gap-1">
-                                                <span className="text-base font-black text-gray-900">{seller.productCount}</span>
-                                                <span className="text-[9px] font-bold text-gray-400 uppercase">SKUs</span>
-                                            </div>
-                                        </div>
-                                        <div className="p-3.5 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-col">
-                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Earnings</span>
-                                            <div className="flex items-baseline gap-1">
-                                                <span className="text-base font-black text-emerald-600">₨ {seller.balance.toLocaleString()}</span>
-                                            </div>
+                                            <span className="text-[11px] font-medium text-gray-500 truncate">{seller.userId?.email}</span>
                                         </div>
                                     </div>
 
-                                    {/* Card Footer: Timeline & Actions */}
-                                    <div className="relative flex items-center justify-between pt-4 border-t border-gray-100">
-                                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50/50 rounded-lg border border-gray-100/50">
-                                            <Calendar size={10} className="text-gray-400" />
-                                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tight">
+                                    {/* Card Stats: Ultra-Compact Grid */}
+                                    <div className="relative grid grid-cols-2 gap-2 mb-4">
+                                        <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-col">
+                                            <span className="text-[7.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Inventory</span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-sm font-black text-gray-900">{seller.productCount}</span>
+                                                <span className="text-[8px] font-bold text-gray-400 uppercase">SKUs</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-col">
+                                            <span className="text-[7.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Earnings</span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-sm font-black text-emerald-600">₨ {seller.balance.toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Card Footer: Compact Actions */}
+                                    <div className="relative flex items-center justify-between pt-3.5 border-t border-gray-100">
+                                        <div className="flex items-center gap-1 px-2 py-1 bg-gray-50/50 rounded-lg border border-gray-100/50">
+                                            <Calendar size={9} className="text-gray-400" />
+                                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tight">
                                                 {new Date(seller.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center bg-gray-50/80 p-1 rounded-xl border border-gray-100">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center bg-gray-50/80 p-0.5 rounded-lg border border-gray-100">
                                                 <ViewSellerButton seller={seller} />
-                                                <div className="w-px h-3 bg-gray-200 mx-1" />
+                                                <div className="w-px h-2.5 bg-gray-200 mx-0.5" />
                                                 <SellerActionButtons seller={seller} />
                                             </div>
                                         </div>

@@ -129,9 +129,9 @@ export default function Navbar() {
                                 </div>
                             ) : (
                                 <div className="hidden lg:flex items-center gap-4 text-sm font-medium text-black">
-                                    <Link href="/auth/signin" className="hover:text-blue-600 transition">Login</Link>
-                                    <span className="text-gray-300">|</span>
-                                    <Link href="/auth/register" className="hover:text-blue-600 transition">Sign Up</Link>
+                                    <Link href="/auth/signin" className="bg-blue-500 px-5 py-2 text-white rounded hover:bg-orange-600 hover:text-white transition">Login</Link>
+                                    <span className="text-blue-600">|</span>
+                                    <Link href="/auth/register" className="bg-blue-500 px-5 py-2 text-white rounded hover:bg-orange-600 hover:text-white transition">Sign Up</Link>
                                 </div>
                             )}
 

@@ -2,15 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Seller from "@/models/Seller";
+import Notification from "@/models/Notification";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, email, password, role, storeName } = await req.json();
+        const { name, email, password, role, storeName, cnic, phoneNumber, city, country } = await req.json();
 
-        if (!name || !email || !password || !role) {
+        if (!name || !email || !password || !role || !phoneNumber || !city || !country) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: "Missing required fields (Name, Email, Password, Phone, City, and Country are mandatory)" },
+                { status: 400 },
+            );
+        }
+
+        if (role === "seller" && (!storeName || !cnic)) {
+            return NextResponse.json(
+                { error: "Merchants must provide store name and CNIC" },
                 { status: 400 },
             );
         }
@@ -31,7 +39,10 @@ export async function POST(req: NextRequest) {
             name,
             email,
             password: hashedPassword,
-            role, // Keep the role for initial user creation
+            role,
+            phoneNumber,
+            city,
+            country,
         });
 
         // 6-Digit OTP Generation
@@ -67,10 +78,29 @@ export async function POST(req: NextRequest) {
 
         if (role === "seller" && storeName) {
             await Seller.create({
-                userId: newUser._id, // Use newUser._id here
+                userId: newUser._id,
                 storeName,
+                cnic,
+                phoneNumber,
                 approved: false,
             });
+
+            // Notify Admins about the new seller request
+            try {
+                const admins = await User.find({ role: "admin" }).select("_id");
+                if (admins.length > 0) {
+                    const adminNotifications = admins.map(admin => ({
+                        recipientId: admin._id,
+                        recipientModel: "User",
+                        type: "seller_approval",
+                        title: "New Seller Request",
+                        message: `A new merchant "${storeName}" has applied for an account and is awaiting approval.`,
+                    }));
+                    await Notification.insertMany(adminNotifications);
+                }
+            } catch (notifyError) {
+                console.error("Failed to notify admins:", notifyError);
+            }
         }
 
         return NextResponse.json(

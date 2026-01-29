@@ -3,7 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Store, User, Mail, Lock } from "lucide-react";
+import { Store, User, Mail, Lock, CreditCard, Phone, Globe, MapPin } from "lucide-react";
+
+const COUNTRIES = [
+    "Pakistan", "United Arab Emirates", "Saudi Arabia", "United States", "United Kingdom", "Canada"
+];
+
+// Major cities for Pakistan as default
+const MAJOR_CITIES: Record<string, string[]> = {
+    "Pakistan": ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar", "Quetta", "Sialkot", "Gujranwala"],
+    "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"],
+    "Saudi Arabia": ["Riyadh", "Jeddah", "Mecca", "Medina", "Dammam"],
+    "United States": ["New York", "Los Angeles", "Chicago", "Houston"],
+    "United Kingdom": ["London", "Manchester", "Birmingham", "Liverpool"],
+    "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary"]
+};
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -12,13 +26,34 @@ export default function RegisterPage() {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        phoneNumber: "",
+        city: "",
+        country: "",
         password: "",
         storeName: "", // Only for sellers
+        cnic: "",      // Only for sellers
     });
     const [error, setError] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        if (name === "cnic") {
+            // Remove dashes and keep only numbers
+            const numbersOnly = value.replace(/\D/g, "");
+
+            // Apply masking: XXXXX-XXXXXXX-X
+            let maskedValue = numbersOnly;
+            if (numbersOnly.length > 5 && numbersOnly.length <= 12) {
+                maskedValue = `${numbersOnly.slice(0, 5)}-${numbersOnly.slice(5)}`;
+            } else if (numbersOnly.length > 12) {
+                maskedValue = `${numbersOnly.slice(0, 5)}-${numbersOnly.slice(5, 12)}-${numbersOnly.slice(12, 13)}`;
+            }
+
+            setFormData({ ...formData, [name]: maskedValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +62,21 @@ export default function RegisterPage() {
         setError("");
 
         try {
+            // Global validation
+            if (formData.phoneNumber.length < 10) {
+                throw new Error("Please enter a valid mobile number (min 10 digits)");
+            }
+
+            // Validation for seller fields
+            if (role === "seller") {
+                if (formData.cnic.length !== 15) {
+                    throw new Error("Please enter a valid CNIC (XXXXX-XXXXXXX-X)");
+                }
+                if (formData.phoneNumber.length < 10) {
+                    throw new Error("Please enter a valid phone number");
+                }
+            }
+
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -126,25 +176,111 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {role === "seller" && (
+                        <div>
+                            <label htmlFor="phoneNumber" className="sr-only">Phone Number</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Phone className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    type="tel"
+                                    required
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Mobile Number (e.g. 03XXXXXXXXX)"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="storeName" className="sr-only">Store Name</label>
+                                <label htmlFor="country" className="sr-only">Country</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Store className="h-5 w-5 text-gray-400" />
+                                        <Globe className="h-5 w-5 text-gray-400" />
                                     </div>
-                                    <input
-                                        id="storeName"
-                                        name="storeName"
-                                        type="text"
+                                    <select
+                                        id="country"
+                                        name="country"
                                         required
-                                        className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        placeholder="Store Name"
-                                        value={formData.storeName}
+                                        className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+                                        value={formData.country}
                                         onChange={handleChange}
-                                    />
+                                    >
+                                        <option value="">Select Country</option>
+                                        {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
                                 </div>
                             </div>
+
+                            <div>
+                                <label htmlFor="city" className="sr-only">City</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <MapPin className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <select
+                                        id="city"
+                                        name="city"
+                                        required
+                                        disabled={!formData.country}
+                                        className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">Select City</option>
+                                        {formData.country && MAJOR_CITIES[formData.country]?.map(city => (
+                                            <option key={city} value={city}>{city}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {role === "seller" && (
+                            <>
+                                <div>
+                                    <label htmlFor="storeName" className="sr-only">Store Name</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Store className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        <input
+                                            id="storeName"
+                                            name="storeName"
+                                            type="text"
+                                            required
+                                            className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder="Store Name"
+                                            value={formData.storeName}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="cnic" className="sr-only">CNIC Number</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <CreditCard className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        <input
+                                            id="cnic"
+                                            name="cnic"
+                                            type="text"
+                                            required
+                                            maxLength={15}
+                                            className="appearance-none rounded-lg relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder="CNIC (XXXXX-XXXXXXX-X)"
+                                            value={formData.cnic}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         <div>

@@ -39,6 +39,18 @@ const UserSchema = new mongoose.Schema({
     verificationOTPExpire: {
         type: Date,
     },
+    phoneNumber: {
+        type: String,
+        // For existing users this will be empty, will be required in registration API
+    },
+    city: {
+        type: String,
+        required: [true, "Please provide your city"],
+    },
+    country: {
+        type: String,
+        required: [true, "Please provide your country"],
+    },
     totalCommissionEarned: {
         type: Number,
         default: 0, // Only relevant for admins - total money earned from all sales
