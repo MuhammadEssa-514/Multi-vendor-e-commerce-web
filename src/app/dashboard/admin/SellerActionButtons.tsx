@@ -17,8 +17,8 @@ export default function SellerActionButtons({
             {/* Status Toggle Button */}
             <button
                 onClick={() => openModal("approve", seller)}
-                className={`p-2 rounded-lg transition-colors ${seller.approved
-                    ? 'text-amber-500 hover:bg-amber-50'
+                className={`p-2 rounded-lg transition-colors bg-green-500 ${seller.approved
+                    ? 'text-white hover:bg-black'
                     : 'text-emerald-500 hover:bg-emerald-50'
                     }`}
                 title={seller.approved ? "Suspend" : "Approve"}
@@ -26,10 +26,12 @@ export default function SellerActionButtons({
                 {seller.approved ? <XCircle size={18} /> : <CheckCircle size={18} />}
             </button>
 
+
+
             {/* Delete Button */}
             <button
                 onClick={() => openModal("delete", seller)}
-                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-white bg-red-500 hover:text-white hover:bg-black rounded-lg transition-colors"
                 title="Delete Seller"
             >
                 <Trash2 size={18} />

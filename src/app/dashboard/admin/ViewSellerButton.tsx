@@ -13,7 +13,7 @@ export default function ViewSellerButton({ seller }: ViewSellerButtonProps) {
     return (
         <button
             onClick={() => openModal("view", seller)}
-            className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors"
+            className="p-2 text-indigo-500 hover:bg-black hover:text-white text-white bg-blue-500 rounded-lg transition-colors"
             title="View Details"
         >
             <Eye size={18} />

@@ -72,12 +72,12 @@ export default function Navbar() {
                             <div className="flex">
                                 <input
                                     type="text"
-                                    placeholder="Search in Daraz Clone"
-                                    className="w-full bg-gray-100 border-none rounded-l-md px-4 py-3 text-sm focus:ring-1 focus:ring-blue-600 outline-none text-black"
+                                    placeholder="Search in Daraz-514"
+                                    className="w-full bg-gray-100 border-none rounded-l-md px-4 py-2 text-sm focus:ring-1 focus:ring-blue-600 outline-none text-black"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                 />
-                                <button type="submit" className="bg-blue-600 text-white px-6 rounded-r-md hover:bg-orange-600 transition">
+                                <button type="submit" className="bg-blue-500 text-white px-10 rounded-r-md hover:bg-orange-600 transition">
                                     <Search size={20} />
                                 </button>
                             </div>

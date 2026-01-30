@@ -72,7 +72,7 @@ async function getSellers(query: string = "", page: number = 1, limit: number = 
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .populate("userId", "name email image")
+            .populate("userId", "name email image city country")
             .lean()
     ]);
 
@@ -94,8 +94,8 @@ async function getSellers(query: string = "", page: number = 1, limit: number = 
         createdAt: seller.createdAt.toISOString(),
         cnic: seller.cnic || "",
         phoneNumber: seller.phoneNumber || "",
-        city: seller.city || "",
-        country: seller.country || "",
+        city: seller.userId?.city || "",
+        country: seller.userId?.country || "",
         userId: seller.userId ? {
             ...seller.userId,
             _id: seller.userId._id.toString()
@@ -126,14 +126,14 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
 
     return (
         <div className="p-3">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="bg-blue-500 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-indigo-100">
-                        <Store className="text-white" size={24} />
+                    <div className="p-3 bg-white rounded-2xl">
+                        <Store className="text-blue-500" size={24} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-blue-600">Manage Sellers</h1>
-                        <p className="text-sm text-gray-500 font-medium">Overview of marketplace merchants</p>
+                        <h1 className="text-2xl font-bold text-white">Manage Sellers</h1>
+                        <p className="text-sm text-white font-medium">Overview of marketplace merchants</p>
                     </div>
                 </div>
 
@@ -159,17 +159,17 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                     {/* Desktop Table View - Hidden on Mobile */}
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-gray-100">
+                            <thead className="bg-blue-500 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Store Profile</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Contact</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Stats</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Store Profile</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Contact</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Stats</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Joined</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-orange-500 ">
                                 {sellers.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-sm italic">
@@ -178,7 +178,7 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                     </tr>
                                 ) : (
                                     sellers.map((seller: any) => (
-                                        <tr key={seller._id} className="hover:bg-gray-50/50 transition-colors group">
+                                        <tr key={seller._id} className="hover:bg-blue-100 transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold border border-indigo-100 flex-shrink-0">
