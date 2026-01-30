@@ -21,7 +21,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null;
                 }
 
-                const user = await User.findOne({ email: credentials.email });
+                const email = (credentials.email as string).toLowerCase().trim();
+                const user = await User.findOne({ email });
 
                 if (!user) {
                     return null;

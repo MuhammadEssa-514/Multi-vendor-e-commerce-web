@@ -149,7 +149,7 @@ export default function VerifyEmailPage() {
                             value={digit}
                             onChange={(e) => handleChange(index, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(index, e)}
-                            ref={(el) => (inputRefs.current[index] = el)}
+                            ref={(el) => { inputRefs.current[index] = el; }}
                             className="w-12 h-16 text-center text-2xl font-black text-indigo-600 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
                         />
                     ))}
