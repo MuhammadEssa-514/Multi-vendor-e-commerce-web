@@ -29,7 +29,7 @@ export const sendEmail = async ({ to, subject, html }: { to: string, subject: st
     } as any);
 
     await transporter.sendMail({
-        from: '"Multi Vendor Support" <noreply@multivendor.com>',
+        from: '"BroMart-514" <noreply@multivendor.com>',
         to,
         subject,
         html,
