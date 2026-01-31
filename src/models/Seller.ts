@@ -2,11 +2,24 @@ import mongoose, { Schema, model, models } from "mongoose";
 
 const SellerSchema = new Schema(
     {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
+        name: {
+            type: String,
+            required: [true, "Please provide a name"],
+        },
+        email: {
+            type: String,
+            required: [true, "Please provide an email"],
             unique: true,
+            lowercase: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: [true, "Please provide a password"],
+        },
+        role: {
+            type: String,
+            default: "seller",
         },
         storeName: {
             type: String,
@@ -48,9 +61,30 @@ const SellerSchema = new Schema(
             type: String,
             required: [true, "Please provide a mobile number"],
         },
+        city: {
+            type: String,
+            required: [true, "Please provide your city"],
+        },
+        country: {
+            type: String,
+            required: [true, "Please provide your country"],
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        verificationOTP: {
+            type: String,
+        },
+        verificationOTPExpire: {
+            type: Date,
+        },
         welcomeShown: {
             type: Boolean,
-            default: false, // For showing welcome popup
+            default: false,
+        },
+        image: {
+            type: String,
         },
     },
     { timestamps: true },

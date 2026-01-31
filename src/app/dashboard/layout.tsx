@@ -42,7 +42,7 @@ export default function DashboardLayout({
     return (
         <div className="flex h-screen bg-gray-50/50 overflow-hidden relative">
             {/* Verification Guard Overlay - Blocks everything for unverified users */}
-            {session?.user && !isEmailVerified && !isAdmin && (
+            {session?.user && !isEmailVerified && (
                 <div className="fixed inset-0 z-[100] bg-white/60 backdrop-blur-xl flex items-center justify-center p-6 text-center animate-in fade-in duration-500">
                     <div className="bg-white p-12 rounded-[3.5rem] shadow-2xl max-w-lg w-full border border-indigo-100/50 relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-violet-500" />
@@ -123,7 +123,7 @@ export default function DashboardLayout({
                         <div className="flex items-center gap-2 sm:gap-4 ml-auto">
                             {/* User Profile */}
                             {session?.user && (
-                                <UserAvatar size="sm" showName={true} label="Customer" />
+                                <UserAvatar size="sm" showName={true} label={isAdmin ? "Admin" : "Customer"} />
                             )}
                             <NotificationCenter />
                         </div>

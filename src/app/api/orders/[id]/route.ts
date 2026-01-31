@@ -6,7 +6,8 @@ import Order from "@/models/Order";
 import Notification from "@/models/Notification";
 import Transaction from "@/models/Transaction";
 import Seller from "@/models/Seller";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Customer from "@/models/Customer";
 import { revalidatePath } from "next/cache";
 
 export async function PATCH(
@@ -73,8 +74,8 @@ export async function PATCH(
 
                 for (const tx of transactions) {
                     // 1. Update Seller: Release pending -> Available balance
-                    await Seller.findOneAndUpdate(
-                        { userId: tx.sellerId },
+                    await Seller.findByIdAndUpdate(
+                        tx.sellerId,
                         {
                             $inc: {
                                 pendingEarnings: -tx.sellerShare,
@@ -86,10 +87,8 @@ export async function PATCH(
                     );
 
                     // 2. Update Admin: Record platform commission
-                    // Assuming there's a primary admin or we just track it globally on all admins or a specific one.
-                    // For now, we update the first admin found or a specific ID if known.
-                    await User.updateMany(
-                        { role: "admin" },
+                    await Admin.updateMany(
+                        {},
                         { $inc: { totalCommissionEarned: tx.commission } }
                     );
 
@@ -107,7 +106,7 @@ export async function PATCH(
         try {
             await Notification.create({
                 recipientId: order.customerId,
-                recipientModel: "User",
+                recipientModel: "Customer",
                 type: "order_status_update",
                 title: `Order Status Updated: ${status.toUpperCase()}`,
                 message: `Your order #${order._id.toString().slice(-6)} is now ${status}.${trackingNumber ? ` Tracking: ${trackingNumber} via ${courier}` : ""}`,

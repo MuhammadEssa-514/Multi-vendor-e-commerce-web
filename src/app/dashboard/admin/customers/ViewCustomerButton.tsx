@@ -13,10 +13,10 @@ export default function ViewCustomerButton({ customer }: ViewCustomerButtonProps
     return (
         <button
             onClick={() => openModal("view", customer)}
-            className="p-2 bg-blue-500 text-white hover:bg-gray-100 hover:text-blue-500 rounded-lg transition-colors"
-            title="View Profile"
+            className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100 active:scale-95"
+            title="View Individual Profile"
         >
-            <Eye size={18} />
+            <Eye size={18} strokeWidth={2.5} />
         </button>
     );
 }

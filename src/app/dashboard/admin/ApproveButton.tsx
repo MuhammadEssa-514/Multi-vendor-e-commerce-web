@@ -55,7 +55,7 @@ export default function ApproveButton({
         <button
             onClick={handleInternalClick}
             disabled={loading}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors font-bold text-xs border ${isApproved
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors font-black text-[10px] border tracking-wide uppercase ${isApproved
                 ? "bg-red-50 text-red-700 border-red-100 hover:bg-red-100"
                 : "bg-green-50 text-green-700 border-green-100 hover:bg-green-100"
                 } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}

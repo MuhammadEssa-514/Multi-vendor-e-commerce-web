@@ -1,8 +1,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
-import { nanoid } from "nanoid";
+import { v2 as cloudinary } from "cloudinary";
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,35 +19,35 @@ export async function POST(req: NextRequest) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        // Create unique filename
-        const filename = `${nanoid()}.${file.name.split('.').pop()}`;
-        // Verify public/uploads exists or create it? 
-        // For simplicity assuming public/uploads exists or writing to current dir.
-        // Better: write to ./public/uploads
 
-        const uploadDir = path.join(process.cwd(), "public/uploads");
+        // Upload to Cloudinary using a promise to handle the stream
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: "multi-vendor-uploads", // Organize in a folder
+                    resource_type: "auto",
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            uploadStream.end(buffer);
+        });
 
-        // Ensure directory exists (Node 10+ recursive)
-        // await mkdir(uploadDir, { recursive: true }); 
-        // Importing mkdir to be safe
-        const { mkdir } = require("fs/promises"); // Using require strictly inside async function block if needed or top level? 
-        // Mixed imports can be messy. Let's rely on standard fs/promises import above.
-
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            // ignore if exists
-        }
-
-        await writeFile(path.join(uploadDir, filename), buffer);
+        const cloudinaryResult = result as any;
 
         return NextResponse.json({
             message: "Success",
-            url: `/uploads/${filename}`
+            url: cloudinaryResult.secure_url, // Return the Cloudinary CDN URL
+            publicId: cloudinaryResult.public_id
         }, { status: 201 });
 
-    } catch (error) {
-        console.error("Upload Error:", error);
-        return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    } catch (error: any) {
+        console.error("Cloudinary Upload Error:", error);
+        return NextResponse.json({
+            error: "Upload failed",
+            details: error.message
+        }, { status: 500 });
     }
 }

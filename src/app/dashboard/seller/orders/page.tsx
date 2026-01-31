@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 import OrderTabs from "./OrderTabs";
 import OrderSearch from "./OrderSearch";
 import OrderActions from "./OrderActions";
@@ -21,7 +21,7 @@ async function getSellerOrders(sellerId: string) {
         .lean();
 
     const enrichedOrders = await Promise.all(orders.map(async (order: any) => {
-        const customer = await User.findById(order.customerId).lean();
+        const customer = await Customer.findById(order.customerId).lean();
 
         // Filter products for this seller
         const myProducts = order.products.filter((p: any) => p.sellerId.toString() === sellerId);

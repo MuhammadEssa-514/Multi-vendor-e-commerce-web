@@ -6,10 +6,10 @@ import Seller from "@/models/Seller";
 import { ArrowLeft, DollarSign, Download, TrendingUp, History, Info } from "lucide-react";
 import Link from "next/link";
 
-async function getFinancialData(userId: string) {
+async function getFinancialData(sellerId: string) {
     await dbConnect();
-    const seller = await Seller.findOne({ userId }).lean();
-    const transactions = await Transaction.find({ sellerId: userId })
+    const seller = await Seller.findById(sellerId).lean();
+    const transactions = await Transaction.find({ sellerId })
         .sort({ createdAt: -1 })
         .limit(20)
         .lean();

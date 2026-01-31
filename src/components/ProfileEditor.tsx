@@ -27,14 +27,37 @@ export default function ProfileEditor({ userData, sellerData }: ProfileEditorPro
     const [storeName, setStoreName] = useState(sellerData?.storeName || "");
     const [bio, setBio] = useState(sellerData?.bio || "");
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        setIsSaving(true);
+        setMessage(null);
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                // Apply Cloudinary transformations for optimization
+                // c_fill,g_face,w_400,h_400 = 400x400 fill focused on the face
+                // f_auto = automatic format (WebP/AVIF)
+                // q_auto = automatic quality
+                const optimizedUrl = data.url.replace("/upload/", "/upload/c_fill,g_face,w_400,h_400,f_auto,q_auto/");
+                setImage(optimizedUrl);
+            } else {
+                setMessage({ type: 'error', text: data.error || "Upload failed" });
+            }
+        } catch (err) {
+            setMessage({ type: 'error', text: "Upload error occurred" });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -176,12 +199,12 @@ export default function ProfileEditor({ userData, sellerData }: ProfileEditorPro
                                         </div>
                                     )}
                                 </div>
-                                <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-lg group-hover:scale-110 active:scale-95">
-                                    <Camera size={16} />
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                                <label className={`absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-lg group-hover:scale-110 active:scale-95 ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={isSaving} />
                                 </label>
                             </div>
-                            <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest font-bold">Preferred: Square 500x500</p>
+                            <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest font-bold">Auto-optimized via Cloudinary CDN</p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6">

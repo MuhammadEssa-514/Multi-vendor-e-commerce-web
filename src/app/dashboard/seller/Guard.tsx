@@ -13,7 +13,7 @@ export default async function SellerGuard({ children }: { children: React.ReactN
     }
 
     await dbConnect();
-    const sellerProfile = await Seller.findOne({ userId: (session.user as any).id });
+    const sellerProfile = await Seller.findById((session.user as any).id);
 
     // If no profile or not approved, show pending screen
     if (!sellerProfile || !sellerProfile.approved) {

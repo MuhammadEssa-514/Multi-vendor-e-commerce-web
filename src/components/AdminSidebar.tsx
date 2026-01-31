@@ -21,6 +21,7 @@ const menuItems = [
     { name: "Manage Customers", icon: Users, href: "/dashboard/admin/customers" },
     { name: "Featured Products", icon: Store, href: "/dashboard/admin/featured" },
     { name: "Transactions", icon: ClipboardList, href: "/dashboard/admin/transactions" },
+    { name: "Settings", icon: ShoppingBag, href: "/dashboard/admin/profile" },
 ];
 
 interface SidebarProps {

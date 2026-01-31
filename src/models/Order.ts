@@ -5,7 +5,7 @@ const OrderSchema = new Schema(
     {
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Customer",
             required: true,
         },
         products: [
@@ -17,7 +17,7 @@ const OrderSchema = new Schema(
                 },
                 sellerId: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "User", // or Seller
+                    ref: "Seller",
                     required: true,
                 },
                 quantity: { type: Number, required: true },

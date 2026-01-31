@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
 import { auth } from "@/auth";
+import { deleteFromCloudinary, deleteManyFromCloudinary } from "@/lib/cloudinary";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
     await dbConnect();
@@ -24,6 +25,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         }
 
         const body = await req.json();
+
+        // 1. Identify images to delete
+        if (body.images) {
+            const oldImages = product.images || [];
+            const newImages = body.images || [];
+            const removedImages = oldImages.filter((img: string) => !newImages.includes(img));
+
+            if (removedImages.length > 0) {
+                // Background delete
+                deleteManyFromCloudinary(removedImages).catch(err => console.error("Cloudinary Cleanup failed:", err));
+            }
+        }
 
         // Clean up data
         const updateData = {
@@ -58,6 +71,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
         // Ownership check
         if (product.sellerId.toString() !== (session.user as any).id) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+        }
+
+        if (product.images && product.images.length > 0) {
+            deleteManyFromCloudinary(product.images).catch(err => console.error("Cloudinary Full Cleanup failed:", err));
         }
 
         await Product.findByIdAndDelete(id);

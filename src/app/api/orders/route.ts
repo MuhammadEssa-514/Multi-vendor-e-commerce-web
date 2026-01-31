@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
                 });
 
                 // Update Seller's pending earnings
-                await Seller.findOneAndUpdate(
-                    { userId: item.sellerId },
+                await Seller.findByIdAndUpdate(
+                    item.sellerId,
                     { $inc: { pendingEarnings: sellerShare } }
                 );
             }
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
             for (const sId of uniqueSellerIds) {
                 await Notification.create({
                     recipientId: sId,
-                    recipientModel: "User", // Role is seller, but model is User
+                    recipientModel: "Seller", // Updated to Seller model
                     type: "order_received",
                     title: "New Order Received",
                     message: `You have a new order (#${order._id.toString().slice(-6)}) for Rs. ${total}. Check your dashboard for details.`,

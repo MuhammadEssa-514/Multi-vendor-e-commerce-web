@@ -19,8 +19,8 @@ export async function PATCH(req: NextRequest) {
         if (storeName) updateData.storeName = storeName;
         if (bio !== undefined) updateData.bio = bio;
 
-        const updatedSeller = await Seller.findOneAndUpdate(
-            { userId },
+        const updatedSeller = await Seller.findByIdAndUpdate(
+            userId,
             { $set: updateData },
             { new: true }
         );

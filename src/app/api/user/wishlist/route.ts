@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 import Product from "@/models/Product";
 
 // GET: Fetch user's wishlist
@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     try {
-        const user = await User.findById((session.user as any).id)
+        const user = await Customer.findById((session.user as any).id)
             .populate({
                 path: 'wishlist',
                 model: Product,
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Product ID required" }, { status: 400 });
         }
 
-        const user = await User.findById((session.user as any).id);
+        const user = await Customer.findById((session.user as any).id);
 
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });

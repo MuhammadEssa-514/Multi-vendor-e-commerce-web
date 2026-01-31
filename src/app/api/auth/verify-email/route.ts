@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Seller from "@/models/Seller";
+import Customer from "@/models/Customer";
 
 export async function POST(req: Request) {
     try {
@@ -12,31 +14,38 @@ export async function POST(req: Request) {
 
         await dbConnect();
 
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        // Check all collections for the profile
+        let account = await Admin.findById(userId);
+        if (!account) {
+            account = await Seller.findById(userId);
+        }
+        if (!account) {
+            account = await Customer.findById(userId);
         }
 
-        if (user.isEmailVerified) {
+        if (!account) {
+            return NextResponse.json({ error: "Account not found" }, { status: 404 });
+        }
+
+        if (account.isEmailVerified) {
             return NextResponse.json({ error: "Account already verified" }, { status: 400 });
         }
 
         // Validate OTP
-        if (user.verificationOTP !== otp) {
+        if (account.verificationOTP !== otp) {
             return NextResponse.json({ error: "Invalid verification code" }, { status: 400 });
         }
 
         // Check Expiry
-        if (new Date() > user.verificationOTPExpire) {
+        if (new Date() > account.verificationOTPExpire) {
             return NextResponse.json({ error: "Verification code expired. Please request a new one." }, { status: 400 });
         }
 
         // Mark as verified
-        user.isEmailVerified = true;
-        user.verificationOTP = undefined;
-        user.verificationOTPExpire = undefined;
-        await user.save();
+        account.isEmailVerified = true;
+        account.verificationOTP = undefined;
+        account.verificationOTPExpire = undefined;
+        await account.save();
 
         return NextResponse.json({ success: true, message: "Email verified successfully!" });
 

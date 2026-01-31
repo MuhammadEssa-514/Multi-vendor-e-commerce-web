@@ -1,7 +1,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Seller from "@/models/Seller";
+import Customer from "@/models/Customer";
 import { sendEmail } from "@/lib/mail";
 import crypto from "crypto";
 
@@ -15,10 +17,17 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        const user = await User.findOne({ email });
+        // Check all collections
+        let user = await Admin.findOne({ email });
+        if (!user) {
+            user = await Seller.findOne({ email });
+        }
+        if (!user) {
+            user = await Customer.findOne({ email });
+        }
 
         if (!user) {
-            // Security: Don't reveal if user exists or not, but for MVP we might be explicit
+            // Security: Don't reveal if user exists or not
             return NextResponse.json({ message: "If that email exists, a link has been sent." }, { status: 200 });
         }
 

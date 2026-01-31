@@ -1,7 +1,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Seller from "@/models/Seller";
+import Customer from "@/models/Customer";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 
@@ -15,17 +17,29 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        // Hash the token provided by the user to compare with DB
+        // Hash the token
         const resetPasswordToken = crypto
             .createHash('sha256')
             .update(token)
             .digest('hex');
 
-        // Find user with valid token and not expired
-        const user = await User.findOne({
+        // Check all collections
+        let user = await Admin.findOne({
             resetPasswordToken,
             resetPasswordExpire: { $gt: Date.now() },
         });
+        if (!user) {
+            user = await Seller.findOne({
+                resetPasswordToken,
+                resetPasswordExpire: { $gt: Date.now() },
+            });
+        }
+        if (!user) {
+            user = await Customer.findOne({
+                resetPasswordToken,
+                resetPasswordExpire: { $gt: Date.now() },
+            });
+        }
 
         if (!user) {
             return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });

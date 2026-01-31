@@ -77,7 +77,10 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
                 });
                 if (!res.ok) throw new Error("Upload failed");
                 const result = await res.json();
-                uploadedUrls.push(result.url);
+
+                // Scale optimization for products: auto format, auto quality, max width 1200
+                const optimizedUrl = result.url.replace("/upload/", "/upload/c_limit,w_1200,f_auto,q_auto/");
+                uploadedUrls.push(optimizedUrl);
             } catch (err) {
                 console.error("Upload error:", err);
                 showToast("Failed to upload image", "error");

@@ -13,107 +13,112 @@ export default function SellerDetailsModal({ isOpen, onClose, seller }: SellerDe
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-            {/* Simple Light Backdrop */}
+            {/* Dark minimal backdrop */}
             <div
-                className="absolute inset-0 bg-gray-900/40 animate-in fade-in duration-150"
+                className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm animate-in fade-in duration-300"
                 onClick={onClose}
             />
 
-            {/* Simple Light Container */}
-            <div className="relative bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl animate-in fade-in duration-150 border border-gray-100 mx-4">
+            {/* Premium Container */}
+            <div className="relative bg-white w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl sm:rounded-[2rem] shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100 mx-4 [&::-webkit-scrollbar]:hidden scrollbar-none">
                 {/* Header */}
-                <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-blue-500 z-10">
+                <div className="p-5 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold border border-indigo-100 flex-shrink-0">
-                            {seller.storeName.charAt(0)}
+                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg border border-indigo-100 flex-shrink-0 shadow-sm">
+                            {seller.storeName?.charAt(0) || "S"}
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-lg font-bold text-white truncate">{seller.storeName}</h2>
-                            <p className="text-[10px] text-white font-medium uppercase tracking-wider">Merchant Overview</p>
+                            <h2 className="text-base font-black text-gray-900 truncate tracking-tight uppercase max-w-[150px] sm:max-w-none">{seller.storeName}</h2>
+                            <p className="text-[8px] text-gray-400 font-black uppercase tracking-[0.2em]">Merchant Dossier</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 hover:text-white hover:bg-red-600 bg-white text-blue-500 rounded-lg transition-colors flex-shrink-0"
+                        className="w-8 h-8 flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all border border-gray-100"
                     >
-                        <X size={18} />
+                        <X size={16} strokeWidth={2.5} />
                     </button>
                 </div>
 
-                <div className="p-4 sm:p-5 space-y-6">
-                    {/* Info Columns */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                <div className="p-5 space-y-5">
+                    {/* Information Matrix */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Owner Name</p>
-                            <p className="text-xs font-bold text-gray-900 truncate">{seller.userId?.name || "N/A"}</p>
+                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Legal Representative</p>
+                            <p className="text-xs font-black text-gray-900 tracking-tight">{seller.name || "N/A"}</p>
                         </div>
                         <div className="space-y-0.5">
-                            <div className="flex items-center gap-1">
-                                <ShieldCheck size={10} className="text-orange-500" />
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">CNIC Identity</p>
+                            <div className="flex items-center gap-1.5 leading-none">
+                                <ShieldCheck size={10} className="w-3 h-3 text-amber-500" />
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Identity Check</p>
                             </div>
-                            <p className="text-xs font-black text-gray-900 truncate">{seller.cnic || "Not Provided"}</p>
+                            <p className="text-xs font-black text-gray-900 tracking-tight">{seller.cnic || "Pending Input"}</p>
                         </div>
                         <div className="space-y-0.5">
-                            <div className="flex items-center gap-1">
-                                <Phone size={10} className="text-emerald-500" />
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Mobile Number</p>
+                            <div className="flex items-center gap-1.5 leading-none">
+                                <Phone size={10} className="w-3 h-3 text-indigo-500" />
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Primary Contact</p>
                             </div>
-                            <p className="text-xs font-black text-gray-900 truncate">{seller.phoneNumber || "Not Provided"}</p>
+                            <p className="text-xs font-black text-gray-900 tracking-tight">{seller.phoneNumber || "Not Set"}</p>
                         </div>
                         <div className="space-y-0.5">
-                            <div className="flex items-center gap-1">
-                                <Globe size={10} className="text-blue-500" />
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Geography</p>
+                            <div className="flex items-center gap-1.5 leading-none">
+                                <Globe size={10} className="w-3 h-3 text-emerald-500" />
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Territory</p>
                             </div>
-                            <p className="text-xs font-black text-gray-900 truncate">
-                                {seller.city || "N/A"}, {seller.country || "N/A"}
+                            <p className="text-xs font-black text-gray-900 tracking-tight">
+                                {seller.city || "Global"}, {seller.country || "Intl"}
                             </p>
                         </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Corporate Email</p>
-                            <p className="text-xs font-bold text-gray-900 truncate lowercase">{seller.userId?.email || "N/A"}</p>
+                        <div className="space-y-0.5 sm:col-span-2">
+                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Electronic Mail</p>
+                            <p className="text-xs font-black text-gray-900 lowercase tracking-tight break-all">{seller.email || "N/A"}</p>
                         </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Verification Status</p>
+                        <div className="space-y-1.5 sm:col-span-2">
+                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Onboarding Status</p>
                             <div>
-                                <span className={`inline-flex px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase border ${seller.approved ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                    {seller.approved ? 'Verified Merchant' : 'Verification Pending'}
+                                <span className={`inline-flex px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${seller.approved ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-sm' : 'bg-amber-50 text-amber-600 border-amber-100 shadow-sm'}`}>
+                                    {seller.approved ? 'Verified Active' : 'Security Vetting'}
                                 </span>
                             </div>
                         </div>
-                        <div className="space-y-0.5 col-span-full">
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Merchant Since</p>
-                            <div className="flex items-center gap-2">
-                                <Calendar size={12} className="text-gray-400" />
-                                <p className="text-xs font-bold text-gray-900">{new Date(seller.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                    </div>
+
+                    {/* Operational Metrics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="bg-gray-50/50 p-3 rounded-xl border border-gray-100 text-center group hover:bg-white hover:shadow-lg hover:shadow-indigo-500/5 transition-all">
+                            <div className="flex sm:block items-center justify-between">
+                                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest sm:mb-1 leading-none">Inventory</p>
+                                <p className="text-base font-black text-gray-900 tracking-tighter">{seller.productCount}</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50/50 p-3 rounded-xl border border-gray-100 text-center group hover:bg-white hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+                            <div className="flex sm:block items-center justify-between">
+                                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest sm:mb-1 leading-none">Settlement</p>
+                                <p className="text-base font-black text-emerald-600 tracking-tighter">₨{seller.balance?.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-50/50 p-3 rounded-xl border border-gray-100 text-center group hover:bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+                            <div className="flex sm:block items-center justify-between">
+                                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest sm:mb-1 leading-none">Throughput</p>
+                                <p className="text-base font-black text-blue-600 tracking-tighter">₨{seller.totalEarnings?.toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Stats Tiles */}
-                    <div className="grid grid-cols-3 gap-2">
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
-                            <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Stock</p>
-                            <p className="text-xs font-bold text-gray-900">{seller.productCount}</p>
+                    {/* Footer System Integrity */}
+                    <div className="pt-6 sm:pt-8 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                            <Calendar size={12} className="sm:w-3.5 sm:h-3.5 text-gray-400" />
+                            <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-center sm:text-left">
+                                Commissioned {new Date(seller.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                            </p>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
-                            <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Balance</p>
-                            <p className="text-xs font-bold text-gray-900">₨{seller.balance.toLocaleString()}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
-                            <p className="text-[8px] font-bold text-gray-400 uppercase mb-1">Total</p>
-                            <p className="text-xs font-bold text-gray-900">₨{seller.totalEarnings.toLocaleString()}</p>
-                        </div>
-                    </div>
-
-                    {/* Simple Action */}
-                    <div className="pt-4 border-t border-gray-50 flex justify-end">
                         <button
                             onClick={onClose}
-                            className="w-full sm:w-auto px-5 py-2 bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-red-500 transition-all"
+                            className="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-gray-900 text-white rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl shadow-gray-900/10 active:scale-95"
                         >
-                            Close Overview
+                            Acknowledge
                         </button>
                     </div>
                 </div>

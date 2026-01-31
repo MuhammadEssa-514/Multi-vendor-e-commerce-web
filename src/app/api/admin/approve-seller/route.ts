@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Seller from "@/models/Seller";
 import Notification from "@/models/Notification";
-import User from "@/models/User"; // Ensure User model is registered for notifications
+import Admin from "@/models/Admin";
 import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
@@ -21,9 +21,8 @@ export async function POST(req: NextRequest) {
         const currentSeller = await Seller.findById(sellerId);
         if (!currentSeller) return NextResponse.json({ error: "Seller not found" }, { status: 404 });
 
-        // Check if the owner's email is verified
-        const owner = await User.findById(currentSeller.userId);
-        if (!owner?.isEmailVerified) {
+        // Check if the merchant's email is verified
+        if (!currentSeller.isEmailVerified) {
             return NextResponse.json({
                 error: "Verification Required",
                 message: "This merchant has NOT verified their email yet. You cannot approve unverified accounts for security reasons."
@@ -33,16 +32,14 @@ export async function POST(req: NextRequest) {
         const newStatus = !currentSeller.approved;
         const seller = await Seller.findByIdAndUpdate(sellerId, { approved: newStatus }, { new: true });
 
-
         if (seller && seller.approved) {
-            // Fire-and-forget notification so it doesn't block the response
+            // Fire-and-forget notification
             Notification.create({
-                recipientId: seller.userId,
-                recipientModel: "User",
+                recipientId: seller._id,
+                recipientModel: "Seller",
                 type: "seller_approval",
                 title: "Congratulations! Your Store is Approved",
                 message: `Step into your dashboard! "${seller.storeName}" has been approved by our admin team. You can now start adding products and managing your orders.`,
-            }).then(() => {
             }).catch(err => {
                 console.error("Async notification failed:", err.message);
             });

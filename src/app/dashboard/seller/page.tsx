@@ -30,14 +30,14 @@ export default async function SellerDashboard() {
         redirect("/dashboard");
     }
 
-    const sellerProfile = await Seller.findOne({ userId: (session.user as any).id });
+    const sellerProfile = await Seller.findById((session.user as any).id);
     const products = await getSellerProducts((session.user as any).id);
 
     return (
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
             <SellerWelcomeWrapper
-                storeName={sellerProfile.storeName}
-                welcomeShown={sellerProfile.welcomeShown}
+                storeName={String(sellerProfile.storeName)}
+                welcomeShown={Boolean(sellerProfile.welcomeShown)}
             />
             <div className="mb-8">
                 <h2 className="text-3xl font-black text-gray-900">Dashboard Overview</h2>

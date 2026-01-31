@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Seller from "@/models/Seller";
+import Customer from "@/models/Customer";
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 
 export async function GET(req: NextRequest) {
     try {
@@ -11,7 +14,9 @@ export async function GET(req: NextRequest) {
         }
 
         await dbConnect();
-        const user = await User.findById((session.user as any).id).select("-password");
+        const role = (session.user as any).role;
+        const Model = role === "admin" ? Admin : (role === "seller" ? Seller : Customer);
+        const user = await Model.findById((session.user as any).id).select("-password");
 
         return NextResponse.json({ user });
     } catch (error) {
@@ -28,6 +33,7 @@ export async function PATCH(req: NextRequest) {
 
         const { name, image } = await req.json();
         const userId = (session.user as any).id;
+        const role = (session.user as any).role;
 
         await dbConnect();
 
@@ -35,14 +41,24 @@ export async function PATCH(req: NextRequest) {
         if (name) updateData.name = name;
         if (image) updateData.image = image;
 
-        const updatedUser = await User.findByIdAndUpdate(
+        const Model = role === "admin" ? Admin : (role === "seller" ? Seller : Customer);
+
+        // 1. Check for old image to delete
+        if (image) {
+            const oldUser = await Model.findById(userId).select("image");
+            if (oldUser && oldUser.image && oldUser.image !== image) {
+                deleteFromCloudinary(oldUser.image).catch(err => console.error("Profile image cleanup failed:", err));
+            }
+        }
+
+        const updatedUser = await Model.findByIdAndUpdate(
             userId,
             { $set: updateData },
             { new: true }
         ).select("-password");
 
         if (!updatedUser) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return NextResponse.json({ error: "Account not found" }, { status: 404 });
         }
 
         return NextResponse.json({

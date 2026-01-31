@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 import Order from "@/models/Order";
-import { Users, Mail, Calendar, Phone, Search } from "lucide-react";
+import { Users, Mail, Calendar, Phone, Search, ShoppingBag, BarChart3 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import Image from "next/image";
 import CustomerActionsManager from "./CustomerActionsManager";
@@ -17,7 +17,7 @@ async function deleteCustomer(formData: FormData) {
     if (!userId) return;
 
     await dbConnect();
-    await User.findByIdAndDelete(userId);
+    await Customer.findByIdAndDelete(userId);
     revalidatePath("/dashboard/admin/customers");
 }
 
@@ -33,7 +33,22 @@ async function getCustomers(query: string = "") {
         ];
     }
 
-    const customers = await User.find(matchStage).sort({ createdAt: -1 }).lean();
+    // Global Stats for Customers
+    const [totalCustomers, verifiedCustomers, globalOrderStats] = await Promise.all([
+        Customer.countDocuments({ role: "customer" }),
+        Customer.countDocuments({ role: "customer", isEmailVerified: true }),
+        Order.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: { $sum: 1 },
+                    totalLTV: { $sum: "$total" }
+                }
+            }
+        ])
+    ]);
+
+    const customers = await Customer.find(matchStage).sort({ createdAt: -1 }).lean();
 
     // Fetch order stats for these customers
     const customerIds = customers.map((c: any) => c._id);
@@ -56,7 +71,7 @@ async function getCustomers(query: string = "") {
         return acc;
     }, {});
 
-    return customers.map((user: any) => ({
+    const customersWithStats = customers.map((user: any) => ({
         ...user,
         _id: user._id.toString(),
         createdAt: user.createdAt.toISOString(),
@@ -67,6 +82,16 @@ async function getCustomers(query: string = "") {
         orderCount: statsMapArr[user._id.toString()]?.orderCount || 0,
         totalSpent: statsMapArr[user._id.toString()]?.totalSpent || 0,
     }));
+
+    return {
+        customers: customersWithStats,
+        globalStats: {
+            totalCustomers,
+            verifiedCustomers,
+            totalOrders: globalOrderStats[0]?.totalOrders || 0,
+            totalLTV: globalOrderStats[0]?.totalLTV || 0
+        }
+    };
 }
 
 export default async function ManageCustomersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -77,100 +102,165 @@ export default async function ManageCustomersPage({ searchParams }: { searchPara
 
     const { q } = await searchParams;
     const query = q || "";
-    const customers = await getCustomers(query);
+    const { customers, globalStats } = await getCustomers(query);
 
     return (
-        <div className="p-3">
-            {/* Executive Header */}
-            <div className="bg-blue-500 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-2xl">
-                        <Users className="text-blue-500" size={24} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-white">Manage Customers</h1>
-                        <p className="text-sm text-white font-medium">Verified Identity Management</p>
-                    </div>
+        <div className="min-h-screen bg-[#F8FAFC] p-4 lg:p-10 space-y-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter mb-2">Customer Universe</h1>
+                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] flex items-center gap-2">
+                        <Users size={14} className="text-blue-500" /> Identity Intelligence • Consumer Lifecycle
+                    </p>
                 </div>
-
                 <div className="flex items-center gap-3">
                     <form className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
                         <input
                             type="text"
                             name="q"
                             defaultValue={query}
-                            placeholder="Search name, phone or email..."
-                            className="pl-11 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all w-full md:w-64 text-black"
+                            placeholder="Search identity..."
+                            className="pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all w-full md:w-80 text-gray-900 shadow-sm"
                         />
                     </form>
                 </div>
             </div>
 
+            {/* Premium Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                            <Users size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Total Consumers</p>
+                            <p className="text-xl font-black text-gray-900">{globalStats.totalCustomers}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                            <Mail size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Verified Users</p>
+                            <p className="text-xl font-black text-gray-900">{globalStats.verifiedCustomers}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                            <ShoppingBag size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Total Orders</p>
+                            <p className="text-xl font-black text-gray-900">{globalStats.totalOrders}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                            <BarChart3 size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Lifetime Value</p>
+                            <p className="text-xl font-black text-gray-900">₨ {globalStats.totalLTV.toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <CustomerActionsManager deleteCustomerAction={deleteCustomer}>
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden lg:overflow-x-hidden w-full">
-                    {/* Desktop Table View - Hidden on Mobile */}
-                    <div className="hidden lg:block overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-blue-500 border-b border-gray-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Identity Profile</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Contact Info</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Auth Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider">Joined</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-white uppercase tracking-wider text-right">Actions</th>
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                    {/* Desktop Table */}
+                    <div className="hidden lg:block w-full">
+                        <table className="w-full text-left border-collapse table-fixed">
+                            <thead>
+                                <tr className="bg-blue-600 text-white">
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider rounded-tl-2xl w-[25%]">Customer Profile</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider w-[20%]">Contact Channel</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider w-[20%]">Engagement</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider w-[10%]">Auth Status</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider w-[10%]">Registered</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-right rounded-tr-2xl w-[15%]">Operations</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50/50">
                                 {customers.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm italic">
-                                            No customers found matching your criteria.
+                                        <td colSpan={6} className="px-4 py-20 text-center text-gray-300 font-bold uppercase text-[10px] tracking-widest">
+                                            No consumer records found
                                         </td>
                                     </tr>
                                 ) : (
                                     customers.map((user: any) => (
-                                        <tr key={user._id} className="hover:bg-blue-50 transition-colors group">
-                                            <td className="px-6 py-4">
+                                        <tr key={user._id} className="group hover:bg-gray-100 transition-colors duration-200 border-b border-gray-50 last:border-0 cursor-pointer">
+                                            <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold overflow-hidden relative border border-blue-100 flex-shrink-0">
+                                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-sm shadow-sm border border-blue-100/50 group-hover:scale-105 transition-transform overflow-hidden relative shrink-0">
                                                         {user.image ? (
-                                                            <Image src={user.image} alt={user.name} fill sizes="32px" className="object-cover" />
+                                                            <Image src={user.image} alt={user.name} fill className="object-cover" />
                                                         ) : (
                                                             user.name?.charAt(0) || "U"
                                                         )}
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-bold text-gray-900">{user.name}</span>
-                                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{user.role}</span>
+                                                    <div className="min-w-0">
+                                                        <span className="font-black text-gray-900 text-xs tracking-tight truncate block max-w-[120px]">{user.name}</span>
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{user.role}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-4 py-3">
                                                 <div className="flex flex-col gap-0.5">
-                                                    <div className="flex items-center gap-2 text-xs font-bold text-gray-900">
-                                                        <Phone size={10} className="text-emerald-500" />
-                                                        {user.phoneNumber || "No Phone"}
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-700">
+                                                        <Phone size={9} className="text-indigo-500" />
+                                                        {user.phoneNumber || "N/A"}
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                                                        <Mail size={10} className="text-gray-400" />
+                                                    <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 lowercase truncate max-w-[150px]">
+                                                        <Mail size={9} />
                                                         {user.email}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${user.isEmailVerified
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-100'
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Orders</span>
+                                                        <span className="text-[10px] font-black text-gray-900 mt-0.5">{user.orderCount}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Spent</span>
+                                                        <span className="text-[10px] font-black text-emerald-600 mt-0.5">₨ {(user.totalSpent || 0).toLocaleString()}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${user.isEmailVerified
+                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                    : 'bg-rose-50 text-rose-600 border-rose-100'
                                                     }`}>
-                                                    {user.isEmailVerified ? 'Verified' : 'Pending'}
+                                                    {user.isEmailVerified ? 'Auth' : 'User'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-xs text-gray-500 font-bold">
-                                                {new Date(user.createdAt).toLocaleDateString()}
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-1.5 text-gray-400">
+                                                    <Calendar size={10} />
+                                                    <span className="text-[10px] font-bold tracking-tight">
+                                                        {new Date(user.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: '2-digit' })}
+                                                    </span>
+                                                </div>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-1">
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-2">
                                                     <ViewCustomerButton customer={user} />
                                                     <DeleteCustomerButton customer={user} />
                                                 </div>
@@ -182,65 +272,50 @@ export default async function ManageCustomersPage({ searchParams }: { searchPara
                         </table>
                     </div>
 
-                    {/* Compact Card Mobile View - Hidden on Desktop */}
-                    <div className="lg:hidden bg-gray-50/50 p-2.5 space-y-2.5">
-                        {customers.length === 0 ? (
-                            <div className="py-12 text-center text-gray-500 text-sm italic bg-white rounded-2xl border border-gray-100 shadow-sm">
-                                No customers found matching your criteria.
-                            </div>
-                        ) : (
-                            customers.map((user: any) => (
-                                <div
-                                    key={user._id}
-                                    className="bg-white rounded-[20px] border border-gray-100 p-3.5 shadow-sm active:scale-[0.98] transition-all duration-300 relative group overflow-hidden"
-                                >
-                                    <div className="relative flex items-center gap-3.5 mb-4">
-                                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border border-blue-100 overflow-hidden relative flex-shrink-0">
+                    {/* Mobile Cards */}
+                    <div className="lg:hidden p-4 space-y-4 bg-gray-50/50">
+                        {customers.map((user: any) => (
+                            <div key={user._id} className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm space-y-4 relative group">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-lg border border-blue-100/50 overflow-hidden relative">
                                             {user.image ? (
-                                                <Image src={user.image} alt={user.name} fill sizes="40px" className="object-cover" />
+                                                <Image src={user.image} alt={user.name} fill className="object-cover" />
                                             ) : (
                                                 user.name?.charAt(0) || "U"
                                             )}
                                         </div>
-                                        <div className="min-w-0 flex-1">
-                                            <h3 className="text-sm font-black text-gray-900 truncate tracking-tight">{user.name}</h3>
-                                            <div className="flex items-center gap-1.5 mt-0.5">
-                                                <div className={`w-1 h-1 rounded-full ${user.isEmailVerified ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                                                    {user.isEmailVerified ? "Verified Account" : "Verification Pending"}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <ViewCustomerButton customer={user} />
-                                            <DeleteCustomerButton customer={user} />
+                                        <div>
+                                            <h3 className="text-sm font-black text-gray-900 tracking-tight">{user.name}</h3>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{user.isEmailVerified ? "Verified" : "Unverified"}</p>
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-2 mb-3">
-                                        <div className="p-2.5 bg-gray-50/50 rounded-xl border border-gray-100">
-                                            <span className="text-[7.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Orders</span>
-                                            <span className="text-xs font-black text-gray-900">{user.orderCount || 0}</span>
-                                        </div>
-                                        <div className="p-2.5 bg-gray-50/50 rounded-xl border border-gray-100">
-                                            <span className="text-[7.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">Spent</span>
-                                            <span className="text-xs font-black text-emerald-600">₨ {user.totalSpent?.toLocaleString() || 0}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between text-[10px] text-gray-500 font-bold border-t border-gray-50 pt-3">
-                                        <div className="flex items-center gap-1.5">
-                                            <Phone size={10} className="text-gray-400" />
-                                            {user.phoneNumber || "No Phone"}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 uppercase tracking-tighter">
-                                            <Calendar size={10} className="text-gray-400" />
-                                            {new Date(user.createdAt).toLocaleDateString()}
-                                        </div>
+                                    <div className="flex gap-2">
+                                        <ViewCustomerButton customer={user} />
+                                        <DeleteCustomerButton customer={user} />
                                     </div>
                                 </div>
-                            ))
-                        )}
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Activity</span>
+                                        <span className="text-xs font-black text-gray-900">{user.orderCount} Orders</span>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Revenue Contribution</span>
+                                        <span className="text-xs font-black text-emerald-600">₨ {user.totalSpent?.toLocaleString()}</span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Phone size={12} className="text-gray-400" />
+                                        <span className="text-[10px] font-bold text-gray-400">{user.phoneNumber || "No Contact"}</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Registered {new Date(user.createdAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </CustomerActionsManager>

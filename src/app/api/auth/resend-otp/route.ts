@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Admin from "@/models/Admin";
+import Seller from "@/models/Seller";
+import Customer from "@/models/Customer";
 import { sendEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
@@ -13,7 +15,14 @@ export async function POST(req: Request) {
 
         await dbConnect();
 
-        const user = await User.findById(userId);
+        // Check all collections
+        let user = await Admin.findById(userId);
+        if (!user) {
+            user = await Seller.findById(userId);
+        }
+        if (!user) {
+            user = await Customer.findById(userId);
+        }
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });

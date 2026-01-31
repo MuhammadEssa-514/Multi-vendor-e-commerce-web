@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 import Seller from "@/models/Seller";
+import Admin from "@/models/Admin";
 import Notification from "@/models/Notification";
 import bcrypt from "bcryptjs";
 
@@ -25,34 +26,91 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
+        // Check if account exists in any collection
+        const [existingAdmin, existingSeller, existingCustomer] = await Promise.all([
+            Admin.findOne({ email }),
+            Seller.findOne({ email }),
+            Customer.findOne({ email })
+        ]);
+
+        if (existingAdmin || existingSeller || existingCustomer) {
             return NextResponse.json(
-                { error: "User already exists" },
+                { error: "Account already exists with this email" },
                 { status: 400 },
             );
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Create user
-        const newUser = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role,
-            phoneNumber,
-            city,
-            country,
-        });
 
         // 6-Digit OTP Generation
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-        await User.findByIdAndUpdate(newUser._id, {
-            verificationOTP: otp, // In a real production app, you'd hash this, but for this demo/MVP we store it plain
-            verificationOTPExpire: otpExpire
-        });
+        let userId: string;
+
+        if (role === "seller") {
+            // Create record ONLY in Seller collection
+            const newSeller = await Seller.create({
+                name,
+                email,
+                password: hashedPassword,
+                role: "seller",
+                storeName,
+                cnic,
+                phoneNumber,
+                city,
+                country,
+                verificationOTP: otp,
+                verificationOTPExpire: otpExpire,
+                approved: false,
+            });
+            userId = newSeller._id.toString();
+
+            // Notify Admins about the new seller request
+            try {
+                const admins = await Admin.find({}).select("_id");
+                if (admins.length > 0) {
+                    const adminNotifications = admins.map(admin => ({
+                        recipientId: admin._id,
+                        recipientModel: "Admin",
+                        type: "seller_approval",
+                        title: "New Seller Request",
+                        message: `A new merchant "${storeName}" has applied for an account and is awaiting approval.`,
+                    }));
+                    await Notification.insertMany(adminNotifications);
+                }
+            } catch (notifyError) {
+                console.error("Failed to notify admins:", notifyError);
+            }
+        } else if (role === "admin") {
+            // Create record in Admin collection
+            const newAdmin = await Admin.create({
+                name,
+                email,
+                password: hashedPassword,
+                role: "admin",
+                phoneNumber,
+                city,
+                country,
+                verificationOTP: otp,
+                verificationOTPExpire: otpExpire
+            });
+            userId = newAdmin._id.toString();
+        } else {
+            // Create record in Customer collection
+            const newCustomer = await Customer.create({
+                name,
+                email,
+                password: hashedPassword,
+                role: "customer",
+                phoneNumber,
+                city,
+                country,
+                verificationOTP: otp,
+                verificationOTPExpire: otpExpire
+            });
+            userId = newCustomer._id.toString();
+        }
 
         // Send Verification Email
         try {
@@ -76,35 +134,8 @@ export async function POST(req: NextRequest) {
             // We don't block registration if email fails in dev, but in prod you might
         }
 
-        if (role === "seller" && storeName) {
-            await Seller.create({
-                userId: newUser._id,
-                storeName,
-                cnic,
-                phoneNumber,
-                approved: false,
-            });
-
-            // Notify Admins about the new seller request
-            try {
-                const admins = await User.find({ role: "admin" }).select("_id");
-                if (admins.length > 0) {
-                    const adminNotifications = admins.map(admin => ({
-                        recipientId: admin._id,
-                        recipientModel: "User",
-                        type: "seller_approval",
-                        title: "New Seller Request",
-                        message: `A new merchant "${storeName}" has applied for an account and is awaiting approval.`,
-                    }));
-                    await Notification.insertMany(adminNotifications);
-                }
-            } catch (notifyError) {
-                console.error("Failed to notify admins:", notifyError);
-            }
-        }
-
         return NextResponse.json(
-            { message: "User created successfully", userId: newUser._id },
+            { message: "Account created successfully", userId },
             { status: 201 },
         );
     } catch (error) {

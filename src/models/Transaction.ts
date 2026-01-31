@@ -9,7 +9,7 @@ const TransactionSchema = new Schema(
         },
         sellerId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User", // The seller's user ID
+            ref: "Seller", // The seller ID from Sellers collection
             required: true,
         },
         amount: {

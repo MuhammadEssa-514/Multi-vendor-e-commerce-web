@@ -9,8 +9,8 @@ export async function dismissWelcome() {
     if (!session || (session.user as any).role !== "seller") return;
 
     await dbConnect();
-    await Seller.findOneAndUpdate(
-        { userId: (session.user as any).id },
+    await Seller.findByIdAndUpdate(
+        (session.user as any).id,
         { welcomeShown: true }
     );
 }

@@ -13,10 +13,10 @@ export default function ViewSellerButton({ seller }: ViewSellerButtonProps) {
     return (
         <button
             onClick={() => openModal("view", seller)}
-            className="p-2 text-indigo-500 hover:bg-black hover:text-white text-white bg-blue-500 rounded-lg transition-colors"
-            title="View Details"
+            className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-indigo-100/50 active:scale-90"
+            title="View Merchant Profile"
         >
-            <Eye size={18} />
+            <Eye size={18} strokeWidth={2.5} />
         </button>
     );
 }

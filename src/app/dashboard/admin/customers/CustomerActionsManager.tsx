@@ -2,7 +2,7 @@
 
 import { useState, useTransition, createContext, useContext, ReactNode } from "react";
 import CustomerDetailsModal from "./CustomerDetailsModal";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 type ModalType = "view" | "delete" | null;
 
@@ -62,13 +62,15 @@ export default function CustomerActionsManager({
                 />
             )}
 
-            <DeleteConfirmationModal
+            <ConfirmationModal
                 isOpen={activeModal === "delete"}
                 onClose={closeModal}
                 onConfirm={handleDelete}
                 isLoading={isPending}
                 title="Delete Customer"
                 message={`Are you sure you want to permanently remove ${selectedCustomer?.name}? This action cannot be undone.`}
+                confirmText="Terminate Now"
+                type="danger"
             />
         </CustomerActionsContext.Provider>
     );

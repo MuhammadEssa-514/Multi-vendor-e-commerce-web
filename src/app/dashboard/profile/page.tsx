@@ -19,7 +19,7 @@ export default async function ProfilePage() {
     let sellerData = null;
     if ((user as any).role === 'seller') {
         await dbConnect();
-        sellerData = await Seller.findOne({ userId: (user as any).id });
+        sellerData = await Seller.findById((user as any).id);
     }
 
     return (
@@ -39,7 +39,7 @@ export default async function ProfilePage() {
                     <p className="text-gray-500 mt-2">Update your personal information, security settings, and store profile.</p>
                 </div>
 
-                <ProfileEditor userData={user} sellerData={JSON.parse(JSON.stringify(sellerData))} />
+                <ProfileEditor userData={JSON.parse(JSON.stringify(user))} sellerData={JSON.parse(JSON.stringify(sellerData))} />
 
                 <p className="text-center text-gray-400 text-xs mt-12 font-medium">
                     &copy; 2024 Daraz514 Project. Secure & Encrypted Connection.

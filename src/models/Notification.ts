@@ -11,8 +11,8 @@ const NotificationSchema = new Schema(
         recipientModel: {
             type: String,
             required: true,
-            enum: ["User", "Seller"],
-            default: "User",
+            enum: ["Admin", "Seller", "Customer"],
+            default: "Customer",
         },
         type: {
             type: String,

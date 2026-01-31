@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import Customer from "@/models/Customer";
 import Product from "@/models/Product";
 import ProductCard from "@/components/product-card";
 import { Heart, ShoppingBag } from "lucide-react";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 async function getUserWishlist(userId: string) {
     await dbConnect();
-    const user = await User.findById(userId)
+    const user = await Customer.findById(userId)
         .populate({
             path: 'wishlist',
             model: Product

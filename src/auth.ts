@@ -1,7 +1,9 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import dbConnect from "./lib/db";
-import User from "./models/User";
+import Customer from "./models/Customer";
+import Seller from "./models/Seller";
+import Admin from "./models/Admin";
 import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
 
@@ -22,15 +24,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 const email = (credentials.email as string).toLowerCase().trim();
-                const user = await User.findOne({ email });
 
-                if (!user) {
+                // Search in all collections
+                let profile = await Admin.findOne({ email }).lean();
+                let roleFound = "admin";
+
+                if (!profile) {
+                    profile = await Seller.findOne({ email }).lean();
+                    roleFound = "seller";
+                }
+                if (!profile) {
+                    profile = await Customer.findOne({ email }).lean();
+                    roleFound = "customer";
+                }
+
+                if (!profile) {
                     return null;
                 }
 
                 const isMatch = await bcrypt.compare(
                     credentials.password as string,
-                    user.password,
+                    (profile as any).password,
                 );
 
                 if (!isMatch) {
@@ -38,11 +52,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 return {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: user.email,
-                    role: user.role, // Custom field
-                    isEmailVerified: user.isEmailVerified, // Include verification status
+                    id: profile._id.toString(),
+                    name: profile.name,
+                    email: profile.email,
+                    role: (profile as any).role || roleFound, // Use found role if field missing
+                    isEmailVerified: profile.isEmailVerified,
                 };
             },
         }),
