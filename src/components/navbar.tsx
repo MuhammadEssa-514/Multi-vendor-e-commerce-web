@@ -64,7 +64,7 @@ export default function Navbar() {
 
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <span className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tighter">Daraz<span className="text-blue-900">514</span></span>
+                            <span className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tighter">BroMart<span className="text-blue-900">514</span></span>
                         </Link>
 
                         {/* Search Bar - Desktop */}
@@ -72,7 +72,7 @@ export default function Navbar() {
                             <div className="flex">
                                 <input
                                     type="text"
-                                    placeholder="Search in Daraz-514"
+                                    placeholder="Search in BroMart-514"
                                     className="w-full bg-gray-100 border-none rounded-l-md px-4 py-2 text-sm focus:ring-1 focus:ring-blue-600 outline-none text-black"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -195,7 +195,7 @@ export default function Navbar() {
                     <div className="absolute left-0 top-0 bottom-0 w-[280px] bg-white shadow-2xl overflow-y-auto animate-slide-in-left">
                         {/* Drawer Header */}
                         <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <span className="font-bold text-lg text-blue-600">Daraz514</span>
+                            <span className="font-bold text-lg text-blue-600">BroMart-514</span>
                             <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 hover:text-red-500">
                                 <span className="sr-only">Close menu</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>

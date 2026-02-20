@@ -48,8 +48,8 @@ export default async function DashboardPage() {
         <div className="p-4 sm:p-8 max-w-7xl mx-auto">
             <MobileRedirect />
             <div className="mb-8">
-                <h2 className="text-2xl font-black text-gray-900">Account Overview</h2>
-                <p className="text-sm text-gray-500 mt-1">Manage your activity and track your recent purchases.</p>
+                <h2 className="text-2xl font-black text-white">Account Overview</h2>
+                <p className="text-sm text-white mt-1">Manage your activity and track your recent purchases.</p>
             </div>
 
             {/* Stats Grid */}

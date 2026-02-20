@@ -35,51 +35,62 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        // 1. Construct products array and check for self-buying
-        const orderProducts = items.map((item: any) => {
-            const sellerId = item.sellerId?._id || item.sellerId;
+        // 1. Group items by Seller
+        const sellerGroups: Record<string, any[]> = {};
+
+        items.forEach((item: any) => {
+            const sId = item.sellerId?._id || item.sellerId;
+            if (!sId) throw new Error("Item missing seller ID");
 
             // ANTI-SELF-BUY CHECK
-            if (sellerId?.toString() === customerId.toString()) {
+            if (sId.toString() === customerId.toString()) {
                 throw new Error(`You cannot purchase your own product: ${item.name}`);
             }
 
-            return {
+            if (!sellerGroups[sId]) {
+                sellerGroups[sId] = [];
+            }
+            sellerGroups[sId].push(item);
+        });
+
+        // 2. Create Orders for each seller
+        const createdOrderIds: string[] = [];
+        const COMMISSION_RATE = 0.10; // 10% platform fee
+
+        for (const [sellerId, sellerItems] of Object.entries(sellerGroups)) {
+            // Calculate total for this specific seller's order
+            const sellerOrderTotal = sellerItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+            // Format products for Order Schema
+            const orderProducts = sellerItems.map((item) => ({
                 productId: item._id,
                 sellerId: sellerId,
                 quantity: item.quantity,
                 price: item.price
-            };
-        });
+            }));
 
-        // Verify stock (Optional but recommended)
-        // For MVP we skip strict stock locking but ideally we decrement stock here.
-        for (const item of items) {
-            await Product.findByIdAndUpdate(item._id, { $inc: { stock: -item.quantity } });
-        }
+            // Create the Order
+            const order = await Order.create({
+                customerId,
+                products: orderProducts,
+                total: sellerOrderTotal, // Specific total for this seller's order
+                status: "pending",
+                paymentStatus: paymentMethod === "COD" ? "unpaid" : "unpaid",
+                paymentMethod,
+                shippingAddress,
+            });
 
-        const order = await Order.create({
-            customerId,
-            products: orderProducts,
-            total,
-            status: "pending",
-            paymentStatus: paymentMethod === "COD" ? "unpaid" : "unpaid",
-            paymentMethod,
-            shippingAddress,
-        });
+            createdOrderIds.push(order._id);
 
-        // 3. Calculate Commissions and Update Financials
-        try {
-            const COMMISSION_RATE = 0.10; // 10% platform fee
-
+            // 3. Create Transactions & Update Financials (Per Item, linked to this Order)
             for (const item of orderProducts) {
                 const itemTotal = item.price * item.quantity;
                 const commission = itemTotal * COMMISSION_RATE;
                 const sellerShare = itemTotal - commission;
 
-                // Create Transaction record for transparency
+                // Create Transaction record
                 await Transaction.create({
-                    orderId: order._id,
+                    orderId: order._id, // Linked to the specific order
                     sellerId: item.sellerId,
                     amount: itemTotal,
                     commission: commission,
@@ -93,30 +104,28 @@ export async function POST(req: NextRequest) {
                     { $inc: { pendingEarnings: sellerShare } }
                 );
             }
-        } catch (finErr) {
-            console.error("Financial calculation failed:", finErr);
-        }
 
-        // 4. Create Notifications for Sellers
-        try {
-            const uniqueSellerIds = [...new Set(orderProducts.map((p: any) => p.sellerId?.toString()).filter(Boolean))];
-
-            for (const sId of uniqueSellerIds) {
+            // 4. Create Notification for THIS Seller
+            try {
                 await Notification.create({
-                    recipientId: sId,
-                    recipientModel: "Seller", // Updated to Seller model
+                    recipientId: sellerId,
+                    recipientModel: "Seller",
                     type: "order_received",
                     title: "New Order Received",
-                    message: `You have a new order (#${order._id.toString().slice(-6)}) for Rs. ${total}. Check your dashboard for details.`,
+                    message: `You have a new order (#${order._id.toString().slice(-6)}) for Rs. ${sellerOrderTotal}. Check your dashboard for details.`,
                     orderId: order._id,
                 });
+            } catch (notifErr) {
+                console.error(`Failed to notify seller ${sellerId}:`, notifErr);
             }
-        } catch (notifErr) {
-            console.error("Failed to create notifications:", notifErr);
-            // Don't fail the order if notifications fail
+
+            // Decrement Stock (Optional MVP step)
+            for (const item of sellerItems) {
+                await Product.findByIdAndUpdate(item._id, { $inc: { stock: -item.quantity } });
+            }
         }
 
-        return NextResponse.json({ success: true, orderId: order._id }, { status: 201 });
+        return NextResponse.json({ success: true, orderIds: createdOrderIds }, { status: 201 });
     } catch (error) {
         console.error("Order creation failed:", error);
         return NextResponse.json({ error: "Failed to create order" }, { status: 500 });

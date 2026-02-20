@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { ListFilter, Clock, Truck, CheckCircle2 } from "lucide-react";
+import { ListFilter, Clock, Truck, CheckCircle2, XCircle } from "lucide-react";
 
 interface OrderTabsProps {
     counts: {
@@ -9,6 +9,7 @@ interface OrderTabsProps {
         pending: number;
         shipped: number;
         delivered: number;
+        cancelled: number;
     };
 }
 
@@ -22,6 +23,7 @@ export default function OrderTabs({ counts }: OrderTabsProps) {
         { id: "pending", label: "Pending", icon: Clock, count: counts.pending, color: "text-amber-600", bg: "bg-amber-50" },
         { id: "shipped", label: "Shipped", icon: Truck, count: counts.shipped, color: "text-blue-600", bg: "bg-blue-50" },
         { id: "delivered", label: "Delivered", icon: CheckCircle2, count: counts.delivered, color: "text-green-600", bg: "bg-green-50" },
+        { id: "cancelled", label: "Cancelled", icon: XCircle, count: counts.cancelled, color: "text-red-600", bg: "bg-red-50" },
     ];
 
     const handleTabChange = (tabId: string) => {

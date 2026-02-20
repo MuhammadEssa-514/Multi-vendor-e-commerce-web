@@ -24,6 +24,12 @@ function CheckoutContent() {
     const [loading, setLoading] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState("COD");
+    const [isOtherCountry, setIsOtherCountry] = useState(false);
+    const [customCountry, setCustomCountry] = useState("");
+    const [isOtherCity, setIsOtherCity] = useState(false);
+    const [customCity, setCustomCity] = useState("");
+    const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+    const [finalTotal, setFinalTotal] = useState(0);
 
     // Shipping Address State
     const [shippingAddress, setShippingAddress] = useState({
@@ -37,11 +43,11 @@ function CheckoutContent() {
 
     useEffect(() => {
         // Only redirect if both cart and direct item are empty, and we're not loading
-        if (!cartLoading && checkoutItems.length === 0) {
+        if (!cartLoading && checkoutItems.length === 0 && !isOrderPlaced) {
             showToast("Your cart is empty. Redirecting...", "info");
             router.push("/");
         }
-    }, [checkoutItems, cartLoading, router, showToast]);
+    }, [checkoutItems, cartLoading, router, showToast, isOrderPlaced]);
 
     const SHIPPING_RATES: Record<string, number> = {
         "Karachi": 99,
@@ -54,20 +60,72 @@ function CheckoutContent() {
         "Quetta": 249,
         "Sialkot": 199,
         "Gujranwala": 199,
+        "Gilgit": 299, // Added Gilgit
         "Other": 299
     };
 
+    const COUNTRIES = [
+        "Pakistan",
+        "United States",
+        "United Kingdom",
+        "Canada",
+        "United Arab Emirates",
+        "Saudi Arabia",
+        "Australia",
+        "Germany",
+        "China",
+        "Other"
+    ];
+
     const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        if (name === "country") {
+            if (value === "Other") {
+                setIsOtherCountry(true);
+                setShippingAddress(prev => ({ ...prev, country: "" }));
+            } else {
+                setIsOtherCountry(false);
+                setShippingAddress(prev => ({ ...prev, country: value }));
+            }
+        } else if (name === "city") {
+            if (value === "Other") {
+                setIsOtherCity(true);
+                setShippingAddress(prev => ({ ...prev, city: "" }));
+            } else {
+                setIsOtherCity(false);
+                setShippingAddress(prev => ({ ...prev, city: value }));
+            }
+        } else {
+            setShippingAddress(prev => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleCustomCountryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCustomCountry(e.target.value);
+        setShippingAddress(prev => ({ ...prev, country: e.target.value }));
+    };
+
+    const handleCustomCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCustomCity(e.target.value);
+        setShippingAddress(prev => ({ ...prev, city: e.target.value }));
     };
 
     const subtotal = checkoutItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shippingFee = SHIPPING_RATES[shippingAddress.city as keyof typeof SHIPPING_RATES] || 0;
+
+    // Calculate shipping fee logic
+    let shippingFee = 0;
+    if (isOtherCity) {
+        shippingFee = SHIPPING_RATES["Other"];
+    } else {
+        shippingFee = SHIPPING_RATES[shippingAddress.city as keyof typeof SHIPPING_RATES] || 0;
+    }
+
     const total = subtotal + shippingFee;
 
     const handlePlaceOrder = async () => {
         // Validation
-        if (!shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.street || !shippingAddress.city || !shippingAddress.zipCode) {
+        if (!shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.street || !shippingAddress.city || !shippingAddress.zipCode || !shippingAddress.country) {
             showToast("Please fill in all shipping details.", "error");
             return;
         }
@@ -90,7 +148,10 @@ function CheckoutContent() {
                 throw new Error(err.error || "Order failed");
             }
 
-            const { orderId } = await res.json();
+            const { orderIds } = await res.json();
+
+            setIsOrderPlaced(true);
+            setFinalTotal(total);
 
             if (mode === "direct") {
                 clearDirectCheckout();
@@ -101,7 +162,7 @@ function CheckoutContent() {
             if (paymentMethod === "COD") {
                 setIsSuccessModalOpen(true);
             } else {
-                router.push(`/payment/mock?amount=${total}&orderId=${orderId}&method=${paymentMethod}`);
+                router.push(`/payment/mock?amount=${total}&orderIds=${orderIds.join(',')}&method=${paymentMethod}`);
             }
 
         } catch (error: any) {
@@ -112,7 +173,7 @@ function CheckoutContent() {
         }
     };
 
-    if (cartLoading || checkoutItems.length === 0) {
+    if (!isOrderPlaced && (cartLoading || checkoutItems.length === 0)) {
         return (
             <div className="min-h-screen bg-white py-12 px-4">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 animate-pulse">
@@ -130,37 +191,98 @@ function CheckoutContent() {
     }
 
     return (
-        <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="min-h-screen bg-[#fafafa] py-12 px-4 sm:px-6 lg:px-8 font-sans">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
 
                 {/* LEFT COLUMN: Shipping & Payment */}
-                <div className="lg:col-span-8 space-y-6">
+                <div className="lg:col-span-8 space-y-8">
 
                     {/* 1. Shipping Address */}
-                    <div className="bg-white p-6 rounded-md shadow-sm">
-                        <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <Truck className="text-blue-600" size={20} /> Shipping Address
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+                        <h2 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <Truck size={20} />
+                            </div>
+                            Shipping Destination
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input name="fullName" type="text" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" value={shippingAddress.fullName} onChange={handleAddressChange} />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Full Name</label>
+                                <input
+                                    name="fullName"
+                                    type="text"
+                                    required
+                                    className="block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="e.g. John Doe"
+                                    value={shippingAddress.fullName}
+                                    onChange={handleAddressChange}
+                                />
                             </div>
                             <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                                <input name="phone" type="text" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" value={shippingAddress.phone} onChange={handleAddressChange} />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Phone Number</label>
+                                <input
+                                    name="phone"
+                                    type="text"
+                                    required
+                                    className="block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="e.g. +92 300 1234567"
+                                    value={shippingAddress.phone}
+                                    onChange={handleAddressChange}
+                                />
                             </div>
+
                             <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700">Street Address</label>
-                                <input name="street" type="text" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" value={shippingAddress.street} onChange={handleAddressChange} />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Street Address</label>
+                                <input
+                                    name="street"
+                                    type="text"
+                                    required
+                                    className="block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="House # / Street # / Area"
+                                    value={shippingAddress.street}
+                                    onChange={handleAddressChange}
+                                />
                             </div>
+
                             <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700">City</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Country</label>
+                                <select
+                                    name="country"
+                                    className={`block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none cursor-pointer appearance-none ${isOtherCountry ? 'bg-white border-blue-500 ring-2 ring-blue-50' : 'bg-gray-50'}`}
+                                    value={isOtherCountry ? "Other" : shippingAddress.country}
+                                    onChange={handleAddressChange}
+                                >
+                                    {COUNTRIES.map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Conditional Custom Country Input */}
+                            {isOtherCountry && (
+                                <div className="sm:col-span-1 animate-in fade-in slide-in-from-top-2">
+                                    <label className="block text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Specify Country</label>
+                                    <input
+                                        name="customCountry"
+                                        type="text"
+                                        required
+                                        autoFocus
+                                        className="block w-full border-blue-200 rounded-xl shadow-sm p-4 text-sm font-bold bg-blue-50/50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none text-blue-900 placeholder-blue-300"
+                                        placeholder="Enter country name..."
+                                        value={customCountry}
+                                        onChange={handleCustomCountryChange}
+                                    />
+                                </div>
+                            )}
+
+                            <div className="sm:col-span-1">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">City</label>
                                 <select
                                     name="city"
                                     required
-                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                                    value={shippingAddress.city}
+                                    className={`block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none cursor-pointer appearance-none ${isOtherCity ? 'bg-white border-blue-500 ring-2 ring-blue-50' : 'bg-gray-50'}`}
+                                    value={isOtherCity ? "Other" : shippingAddress.city}
                                     onChange={handleAddressChange}
                                 >
                                     <option value="">Select City</option>
@@ -169,13 +291,35 @@ function CheckoutContent() {
                                     ))}
                                 </select>
                             </div>
+
+                            {/* Conditional Custom City Input */}
+                            {isOtherCity && (
+                                <div className="sm:col-span-1 animate-in fade-in slide-in-from-top-2">
+                                    <label className="block text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Specify City</label>
+                                    <input
+                                        name="customCity"
+                                        type="text"
+                                        required
+                                        autoFocus
+                                        className="block w-full border-blue-200 rounded-xl shadow-sm p-4 text-sm font-bold bg-blue-50/50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none text-blue-900 placeholder-blue-300"
+                                        placeholder="Enter city name..."
+                                        value={customCity}
+                                        onChange={handleCustomCityChange}
+                                    />
+                                </div>
+                            )}
+
                             <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700">Zip Code</label>
-                                <input name="zipCode" type="text" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" value={shippingAddress.zipCode} onChange={handleAddressChange} />
-                            </div>
-                            <div className="sm:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700">Country</label>
-                                <input name="country" type="text" readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-500" value="Pakistan" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Zip Code</label>
+                                <input
+                                    name="zipCode"
+                                    type="text"
+                                    required
+                                    className="block w-full border-gray-200 rounded-xl shadow-sm p-4 text-sm font-medium bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="Postal Code"
+                                    value={shippingAddress.zipCode}
+                                    onChange={handleAddressChange}
+                                />
                             </div>
                         </div>
                     </div>
@@ -271,7 +415,7 @@ function CheckoutContent() {
                 isOpen={isSuccessModalOpen}
                 onClose={() => router.push("/")}
                 onViewOrders={() => router.push("/dashboard/orders")}
-                orderTotal={total}
+                orderTotal={isOrderPlaced ? finalTotal : total}
             />
         </div>
     );

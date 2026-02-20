@@ -41,8 +41,8 @@ async function getSellerOrders(sellerId: string) {
             createdAt: order.createdAt.toString(),
             status: order.status || "pending",
             paymentStatus: order.paymentStatus,
-            customerName: customer?.name || "Unknown",
-            customerEmail: customer?.email || "No Email",
+            customerName: customer?.name || order.shippingAddress?.fullName || "Guest User",
+            customerEmail: customer?.email || "Email Not Available",
             shippingAddress: order.shippingAddress,
             trackingNumber: order.trackingNumber,
             courier: order.courier,
@@ -85,6 +85,7 @@ export default async function SellerOrdersPage({
         pending: allOrders.filter(o => o.status === "pending").length,
         shipped: allOrders.filter(o => o.status === "shipped").length,
         delivered: allOrders.filter(o => o.status === "delivered").length,
+        cancelled: allOrders.filter(o => o.status === "cancelled").length,
     };
 
     // Filter by Tab (using the searched results)
@@ -134,7 +135,8 @@ export default async function SellerOrdersPage({
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
                                         <span className={`px-2 py-0.5 inline-flex text-[10px] font-black uppercase tracking-tighter rounded-md ${order.status === 'delivered' ? 'bg-green-100 text-green-700' :
                                             order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-amber-100 text-amber-700'
+                                                order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                                    'bg-amber-100 text-amber-700'
                                             }`}>
                                             {order.status || 'pending'}
                                         </span>
@@ -179,7 +181,7 @@ export default async function SellerOrdersPage({
                                         <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                                             <p className="text-xs font-bold text-gray-700">{order.shippingAddress?.fullName}</p>
                                             <p className="text-xs text-gray-500 mt-0.5">{order.shippingAddress?.street}</p>
-                                            <p className="text-xs text-gray-500">{order.shippingAddress?.city}, {order.shippingAddress?.zipCode}</p>
+                                            <p className="text-xs text-gray-500">{order.shippingAddress?.city}, {order.shippingAddress?.country} - {order.shippingAddress?.zipCode}</p>
                                             <p className="text-xs text-indigo-600 font-bold mt-2">{order.shippingAddress?.phone}</p>
                                         </div>
                                     </div>

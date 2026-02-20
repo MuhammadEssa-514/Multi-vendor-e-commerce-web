@@ -16,12 +16,13 @@ const NotificationSchema = new Schema(
         },
         type: {
             type: String,
-            enum: ["order_received", "order_status_update", "system", "seller_approval"],
+            enum: ["order_received", "order_status_update", "system", "seller_approval", "new_message"],
             required: true,
         },
         title: { type: String, required: true },
         message: { type: String, required: true },
         orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+        conversationId: { type: mongoose.Schema.Types.ObjectId, ref: "Conversation" },
         isRead: { type: Boolean, default: false },
     },
     { timestamps: true }

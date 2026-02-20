@@ -39,6 +39,11 @@ const CustomerSchema = new mongoose.Schema({
     verificationOTPExpire: {
         type: Date,
     },
+    pendingEmail: {
+        type: String,
+        lowercase: true,
+        trim: true,
+    },
     phoneNumber: {
         type: String,
     },

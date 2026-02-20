@@ -7,6 +7,7 @@ import Product from "@/models/Product";
 import Notification from "@/models/Notification";
 import { revalidatePath } from "next/cache";
 import { Trash2, CheckCircle, XCircle, Store, Mail, Calendar, Search, Users, Eye, Package, DollarSign } from "lucide-react";
+import Image from "next/image";
 import ViewSellerButton from "../ViewSellerButton";
 import SellerActionButtons from "../SellerActionButtons";
 import SellerActionsManager from "../SellerActionsManager";
@@ -261,8 +262,12 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                         <tr key={seller._id} className="group hover:bg-gray-100 transition-colors duration-200 border-b border-gray-50 last:border-0 cursor-pointer">
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-sm shadow-sm border border-indigo-100/50 group-hover:scale-105 transition-transform shrink-0">
-                                                        {seller.storeName?.charAt(0) || "S"}
+                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-sm shadow-sm border border-indigo-100/50 group-hover:scale-105 transition-transform shrink-0 overflow-hidden relative">
+                                                        {seller.image ? (
+                                                            <Image src={seller.image} alt={seller.storeName} fill className="object-cover" />
+                                                        ) : (
+                                                            seller.storeName?.charAt(0) || "S"
+                                                        )}
                                                     </div>
                                                     <div className="min-w-0">
                                                         <div className="flex items-center gap-1.5">
@@ -337,8 +342,12 @@ export default async function ManageSellersPage({ searchParams }: { searchParams
                                 <div key={seller._id} className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm space-y-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg border border-indigo-100/50">
-                                                {seller.storeName?.charAt(0) || "S"}
+                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-lg border border-indigo-100/50 overflow-hidden relative">
+                                                {seller.image ? (
+                                                    <Image src={seller.image} alt={seller.storeName} fill className="object-cover" />
+                                                ) : (
+                                                    seller.storeName?.charAt(0) || "S"
+                                                )}
                                             </div>
                                             <div>
                                                 <h3 className="text-sm font-black text-gray-900 tracking-tight">{seller.storeName}</h3>

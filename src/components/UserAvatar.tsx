@@ -46,8 +46,8 @@ export default function UserAvatar({ size = "md", showName = false, label }: Use
         <div className="flex items-center gap-2 sm:gap-3">
             {showName && (
                 <div className="text-right hidden sm:block">
-                    <p className="text-sm font-bold text-gray-900 leading-none">{name}</p>
-                    {label && <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-1">{label}</p>}
+                    <p className="text-sm font-bold text-white leading-none">{name}</p>
+                    {label && <p className="text-[10px] font-bold text-white uppercase tracking-wider mt-1">{label}</p>}
                 </div>
             )}
             <div className={`${sizeClasses[size]} rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 relative`}>

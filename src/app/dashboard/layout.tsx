@@ -2,14 +2,16 @@
 
 import CustomerSidebar from "@/components/CustomerSidebar";
 import NotificationCenter from "@/components/notification-center";
-import { Menu, User, ShoppingBag } from "lucide-react";
+import { ShoppingCart, Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import UserAvatar from "@/components/UserAvatar";
 import { ShieldAlert, ExternalLink } from "lucide-react";
-
+import BottomNavBar from "@/components/BottomNavBar";
 import AdminSidebar from "@/components/AdminSidebar";
+import SellerSidebar from "@/components/SellerSidebar";
+import Link from "next/link";
 
 export default function DashboardLayout({
     children,
@@ -39,52 +41,108 @@ export default function DashboardLayout({
         return <div className="flex h-screen bg-gray-50/50 items-center justify-center text-gray-300 font-bold text-xs uppercase tracking-widest">Initialising Secure Workspace...</div>;
     }
 
-    return (
-        <div className="flex h-screen bg-gray-50/50 overflow-hidden relative">
-            {/* Verification Guard Overlay - Blocks everything for unverified users */}
-            {session?.user && !isEmailVerified && (
-                <div className="fixed inset-0 z-[100] bg-white/60 backdrop-blur-xl flex items-center justify-center p-6 text-center animate-in fade-in duration-500">
-                    <div className="bg-white p-12 rounded-[3.5rem] shadow-2xl max-w-lg w-full border border-indigo-100/50 relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-violet-500" />
-
-                        <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-8 text-indigo-600 group-hover:scale-110 transition-transform duration-500">
-                            <ShieldAlert size={48} strokeWidth={1.5} />
+    // Admin Layout (keep existing sidebar)
+    if (isAdmin) {
+        return (
+            <div className="flex h-screen bg-gray-50/50 overflow-hidden relative">
+                {/* Verification Guard */}
+                {session?.user && !isEmailVerified && (
+                    <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+                        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-gray-100 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
+                            <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
+                                <ShieldAlert size={32} strokeWidth={2} />
+                            </div>
+                            <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-2 text-center">Verify Your Email</h2>
+                            <p className="text-gray-600 text-sm mb-6 text-center leading-relaxed">
+                                Please verify <span className="font-bold text-indigo-600">{session.user.email}</span> to continue.
+                            </p>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={() => router.push(`/verify-email?userId=${(session.user as any).id}`)}
+                                    className="w-full py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                                >
+                                    Verify Now <ExternalLink size={16} />
+                                </button>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="w-full py-3 bg-gray-100 text-gray-600 rounded-2xl font-bold text-xs hover:bg-gray-200 transition-colors"
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                )}
 
-                        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Security Check Required</h2>
-                        <p className="text-gray-500 font-medium mb-10 leading-relaxed">
-                            To protect our marketplace, you must verify your email address <span className="text-indigo-600 font-bold">{session.user.email}</span> before accessing your dashboard.
+                <AdminSidebar />
+                <div className="flex-1 flex flex-col min-w-0">
+                    <header className="bg-slate-900 border-b border-gray-100 sticky top-0 z-40 flex-shrink-0 shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between w-full">
+                            <div className="hidden md:block">
+                                <h2 className="text-sm font-bold text-blue-500">Welcome back, {session?.user?.name || "Admin"}!</h2>
+                                <p className="text-[10px] text-gray-400 font-bold tracking-widest">Happy with BroMart-514</p>
+                            </div>
+                            <div className="flex items-center gap-2 sm:gap-4 ml-auto text-white">
+                                {session?.user && (
+                                    <UserAvatar size="sm" showName={true} label="514" />
+                                )}
+                                <NotificationCenter />
+                            </div>
+                        </div>
+                    </header>
+                    <main className="flex-1 bg-slate-900 overflow-y-auto">
+                        {children}
+                    </main>
+                </div>
+            </div>
+        );
+    }
+
+    // Customer Layout - Responsive (Sidebar on Desktop, Bottom Nav on Mobile/Tablet)
+    return (
+        <div className="flex h-screen bg-slate-900 overflow-hidden relative">
+            {/* Verification Guard */}
+            {session?.user && !isEmailVerified && (
+                <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-white p-6 md:p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-gray-100 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
+                        <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
+                            <ShieldAlert size={32} strokeWidth={2} />
+                        </div>
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-2 text-center">Verify Your Email</h2>
+                        <p className="text-gray-600 text-sm mb-6 text-center leading-relaxed">
+                            Please verify <span className="font-bold text-indigo-600">{session.user.email}</span> to continue.
                         </p>
-
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             <button
                                 onClick={() => router.push(`/verify-email?userId=${(session.user as any).id}`)}
-                                className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3"
+                                className="w-full py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                             >
-                                Verify Account Details <ExternalLink size={18} />
+                                Verify Now <ExternalLink size={16} />
                             </button>
                             <button
                                 onClick={() => signOut()}
-                                className="w-full py-4 bg-gray-50 text-gray-400 rounded-3xl font-bold text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                                className="w-full py-3 bg-gray-100 text-gray-600 rounded-2xl font-bold text-xs hover:bg-gray-200 transition-colors"
                             >
                                 Sign Out
                             </button>
                         </div>
-
-                        <p className="mt-8 text-[10px] text-gray-300 font-black uppercase tracking-[0.2em]">Adaptive Security v2.4</p>
                     </div>
                 </div>
             )}
 
-            {/* Sidebar (Admin vs Customer) - Desktop */}
-            {isAdmin ? <AdminSidebar /> : <CustomerSidebar />}
+            {/* Desktop Sidebar - Hidden on Mobile/Tablet */}
+            <div className="hidden lg:block">
+                {(session?.user as any)?.role === "seller" ? <SellerSidebar /> : <CustomerSidebar />}
+            </div>
 
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 z-50 lg:hidden">
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-                    {isAdmin ? (
-                        <AdminSidebar
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+                    {(session?.user as any)?.role === "seller" ? (
+                        <SellerSidebar
                             className="flex fixed left-0 top-0 bottom-0 z-50 w-64 shadow-2xl"
                             onNavigate={() => setIsMobileMenuOpen(false)}
                         />
@@ -98,42 +156,64 @@ export default function DashboardLayout({
             )}
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Dashboard Header */}
-                <header className="bg-white border-b border-gray-100 sticky top-0 z-40 flex-shrink-0 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between w-full">
-                        {/* Mobile Menu & Logo */}
+            <div className="flex-1 flex flex-col min-w-0 w-full">
+                {/* Top Navbar - Mobile: Minimal, Desktop: Full */}
+                <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 flex-shrink-0 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 h-14 lg:h-16 flex items-center justify-between w-full">
+                        {/* Mobile: Hamburger + Logo */}
                         <div className="flex items-center gap-4 lg:hidden">
                             <button
-                                className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                                 onClick={() => setIsMobileMenuOpen(true)}
                             >
                                 <Menu size={24} />
                             </button>
-                            <span className="font-black text-xl text-gray-900 tracking-tight">Daraz<span className="text-indigo-600">Customer</span></span>
+                            <span className="font-black text-lg text-white tracking-tight">BroMart<span className="text-blue-500">514</span></span>
                         </div>
 
-                        {/* Welcome Message - Desktop */}
-                        <div className="hidden md:block">
-                            <h2 className="text-sm font-bold text-gray-800">Welcome back, {session?.user?.name || "Customer"}!</h2>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Happy Shopping today</p>
+                        {/* Desktop: Welcome Message */}
+                        <div className="hidden lg:block">
+                            <h2 className="text-sm font-bold text-blue-500">Welcome back, {session?.user?.name || "Customer"}!</h2>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Happy Shopping Today</p>
                         </div>
 
-                        {/* Right Actions */}
-                        <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-                            {/* User Profile */}
-                            {session?.user && (
-                                <UserAvatar size="sm" showName={true} label={isAdmin ? "Admin" : "Customer"} />
-                            )}
+                        {/* Right: Icons (Mobile: Cart + Notification + Avatar, Desktop: + User Info) */}
+                        <div className="flex items-center gap-3">
+                            {/* Cart Icon - Only on Mobile/Tablet */}
+                            <Link href="/cart" className="relative p-2 text-slate-400 hover:text-blue-500 transition lg:hidden">
+                                <ShoppingCart size={22} strokeWidth={2} />
+                                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                    0
+                                </span>
+                            </Link>
+
+                            {/* Notification Icon */}
                             <NotificationCenter />
+
+                            {/* Profile Avatar - Mobile: No name, Desktop: With name */}
+                            {session?.user && (
+                                <>
+                                    {/* Mobile/Tablet: Avatar only, no name */}
+                                    <div className="lg:hidden">
+                                        <UserAvatar size="sm" showName={false} />
+                                    </div>
+                                    {/* Desktop: Avatar with name and label */}
+                                    <div className="hidden lg:block">
+                                        <UserAvatar size="sm" showName={true} label="Customer" />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </header>
 
-                {/* Content area with independent scrolling */}
-                <main className="flex-1 overflow-y-auto">
+                {/* Content area - Padding for bottom nav on mobile, no padding on desktop */}
+                <main className="flex-1 bg-slate-900 overflow-y-auto pb-20 lg:pb-0 text-white">
                     {children}
                 </main>
+
+                {/* Bottom Navigation Bar - Only on Mobile/Tablet */}
+                <BottomNavBar />
             </div>
         </div>
     );

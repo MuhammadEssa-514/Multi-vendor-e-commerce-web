@@ -8,9 +8,12 @@ function MockPaymentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const amount = searchParams.get("amount");
-    const orderId = searchParams.get("orderId");
+    const orderIdParam = searchParams.get("orderId");
+    const orderIdsParam = searchParams.get("orderIds");
     const method = searchParams.get("method");
     const [status, setStatus] = useState<"processing" | "success" | "failed">("processing");
+
+    const displayId = orderIdsParam ? `${orderIdsParam.split(",").length} Orders` : (orderIdParam ? `#${orderIdParam.slice(-6)}` : "Unknown");
 
     const handlePayment = async (success: boolean) => {
         if (!success) {
@@ -19,26 +22,34 @@ function MockPaymentContent() {
         }
 
         try {
-            // Call webhook to update order
-            const res = await fetch("/api/payments/webhook", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    orderId,
-                    status: "paid",
-                    transactionId: "TXN-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-                }),
-            });
+            // Determine IDs to process
+            const idsToProcess = orderIdsParam ? orderIdsParam.split(",") : (orderIdParam ? [orderIdParam] : []);
 
-            if (res.ok) {
-                setStatus("success");
-                setTimeout(() => {
-                    router.push("/dashboard/orders");
-                }, 2000);
-            } else {
+            if (idsToProcess.length === 0) {
                 setStatus("failed");
+                return;
             }
+
+            // Process all orders
+            await Promise.all(idsToProcess.map(async (id) => {
+                const res = await fetch("/api/payments/webhook", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        orderId: id,
+                        status: "paid",
+                        transactionId: "TXN-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                    }),
+                });
+                if (!res.ok) throw new Error("Payment failed for order " + id);
+            }));
+
+            setStatus("success");
+            setTimeout(() => {
+                router.push("/dashboard/orders");
+            }, 2000);
         } catch (error) {
+            console.error(error);
             setStatus("failed");
         }
     };
@@ -81,7 +92,7 @@ function MockPaymentContent() {
                 </div>
                 <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Order ID</span>
-                    <span className="font-medium text-gray-900">{orderId?.slice(-6)}</span>
+                    <span className="font-medium text-gray-900">{displayId}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
                     <span>Amount</span>

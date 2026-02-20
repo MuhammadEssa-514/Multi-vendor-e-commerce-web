@@ -11,11 +11,11 @@ import { Crown } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Daraz 514 | Online Shopping in Pakistan - Electronics, Fashion & More",
-  description: "Experience the best online shopping in Pakistan with Daraz 514. Shop for electronics, fashion, home appliances, and more at unbeatable prices.",
-  keywords: ["online shopping pakistan", "electronics", "fashion", "daraz clone", "ecommerce"],
+  title: "BroMart 514 | Online Shopping in Pakistan - Electronics, Fashion & More",
+  description: "Experience the best online shopping in Pakistan with BroMart 514. Shop for electronics, fashion, home appliances, and more at unbeatable prices.",
+  keywords: ["online shopping pakistan", "electronics", "fashion", "BroMart ", "ecommerce"],
   openGraph: {
-    title: "Daraz 514 | Online Shopping in Pakistan",
+    title: "BroMart 514 | Online Shopping in Pakistan",
     description: "Discover a wide range of products including electronics, fashion, and more. Best prices and fast delivery.",
     url: "https://daraz514.com", // Replace with actual domain if known, or relative
     siteName: "Daraz 514",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Daraz 514 | Online Shopping in Pakistan",
+    title: "BroMart 514 | Online Shopping in Pakistan",
     description: "Shop the best deals on electronics, fashion, and more at Daraz 514.",
   },
 };

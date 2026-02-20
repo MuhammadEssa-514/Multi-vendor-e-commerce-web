@@ -9,7 +9,7 @@ export default function TransactionsList({ transactions, totalRevenue, totalOrde
     const { openModal } = useTransactionActions();
 
     return (
-        <div className="p-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="bg-slate-900 p-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {/* Header section with Search and Stats */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Main Identity & Search */}

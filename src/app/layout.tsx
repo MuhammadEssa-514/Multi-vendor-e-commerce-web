@@ -11,7 +11,7 @@ import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Daraz 514 - Online Shopping in Pakistan",
+  title: "BroMart 514 - Online Shopping in Pakistan",
   description: "Best online shopping experience",
 };
 
@@ -32,7 +32,7 @@ export default function RootLayout({
           {children}
           <footer className="bg-white border-t mt-12 py-8">
             <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
-              &copy; 2024 Daraz Clone. All Rights Reserved.
+              &copy; 2026 BroMart Bazar. All Rights Reserved Muhammad Essa 514.
             </div>
           </footer>
         </Providers>

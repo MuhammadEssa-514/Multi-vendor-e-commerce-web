@@ -8,7 +8,10 @@ import AddToCartButton from "@/app/products/[id]/add-to-cart-button";
 import ReviewSection from "@/components/ReviewSection";
 import GalleryView from "./GalleryView";
 import WishlistButton from "@/components/WishlistButton";
+import ProductName from "./ProductName";
+import ChatButton from "@/components/Chat/ChatButton";
 import { Metadata } from "next";
+
 
 async function getProduct(id: string) {
     await dbConnect();
@@ -20,13 +23,25 @@ async function getProduct(id: string) {
             ? Object.fromEntries(product.attributes)
             : product.attributes || {};
 
+        // Clean serialization - only plain data
         return {
-            ...product,
             _id: product._id.toString(),
-            sellerId: product.sellerId ? { ...product.sellerId, _id: product.sellerId._id.toString() } : null,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            salePrice: product.salePrice,
+            onSale: product.onSale,
+            stock: product.stock,
+            category: product.category,
+            tags: product.tags || [],
+            images: product.images || [],
+            attributes: plainAttributes,
+            sellerId: product.sellerId ? {
+                _id: product.sellerId._id.toString(),
+                storeName: product.sellerId.storeName
+            } : null,
             createdAt: product.createdAt.toString(),
             updatedAt: product.updatedAt.toString(),
-            attributes: plainAttributes
         };
     } catch (e) {
         return null;
@@ -42,14 +57,22 @@ async function getRelatedProducts(category: string, currentProductId: string) {
         .limit(6)
         .lean();
 
+    // Clean serialization - only necessary fields
     return products.map((p: any) => ({
-        ...p,
         _id: p._id.toString(),
+        name: p.name,
+        price: p.price,
+        salePrice: p.salePrice,
+        onSale: p.onSale,
+        stock: p.stock,
+        images: p.images || [],
+        category: p.category,
         discount: p.onSale && p.salePrice ? Math.round(((p.price - p.salePrice) / p.price) * 100) : 0,
-        rating: 4.5 + (Math.random() * 0.5), // Mock rating for professional feel
-        reviews: Math.floor(Math.random() * 200) + 20 // Mock reviews
+        rating: 4.5 + (Math.random() * 0.5),
+        reviews: Math.floor(Math.random() * 200) + 20
     }));
 }
+
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
@@ -221,9 +244,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                         )}
                                     </div>
 
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-6 tracking-tight">
-                                        {product.name}
-                                    </h1>
+                                    <ProductName name={product.name} />
 
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-10">
                                         <div className="flex items-center gap-2">
@@ -384,11 +405,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                         <div className="text-[9px] font-bold text-gray-400 uppercase mt-1">Reply</div>
                                     </div>
                                 </div>
+                                {product.sellerId?._id && <ChatButton sellerId={product.sellerId._id} productId={product._id} />}
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             {/* Ratings & Reviews Section */}
@@ -405,28 +426,30 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Related Products Section */}
-            {relatedProducts.length > 0 && (
-                <div className="max-w-7xl mx-auto px-4 mt-20">
-                    <div className="flex items-center justify-between mb-10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-gray-900 rounded-2xl text-white shadow-xl shadow-gray-200">
-                                <Heart size={24} fill="currentColor" />
+            {
+                relatedProducts.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-4 mt-20">
+                        <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-gray-900 rounded-2xl text-white shadow-xl shadow-gray-200">
+                                    <Heart size={24} fill="currentColor" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-none">You Might Also Like</h3>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-0.5 opacity-60">Handpicked for your style</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-none">You Might Also Like</h3>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-0.5 opacity-60">Handpicked for your style</p>
-                            </div>
+                            <Link href="/products" className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-4 py-2 rounded-xl transition-all">Explore All</Link>
                         </div>
-                        <Link href="/products" className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-4 py-2 rounded-xl transition-all">Explore All</Link>
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8">
+                            {relatedProducts.map((p: any) => (
+                                <ProductCard key={p._id} product={p} />
+                            ))}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8">
-                        {relatedProducts.map((p: any) => (
-                            <ProductCard key={p._id} product={p} />
-                        ))}
-                    </div>
-                </div>
-            )}
+                )
+            }
 
-        </div>
+        </div >
     );
 }

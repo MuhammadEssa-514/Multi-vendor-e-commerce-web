@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { ListFilter, Clock, Truck, CheckCircle2 } from "lucide-react";
+import { ListFilter, Clock, Truck, CheckCircle2, XCircle } from "lucide-react";
 
 export default function CustomerOrderTabs() {
     const router = useRouter();
@@ -13,6 +13,7 @@ export default function CustomerOrderTabs() {
         { id: "pending", label: "Pending", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
         { id: "shipped", label: "Shipped", icon: Truck, color: "text-blue-600", bg: "bg-blue-50" },
         { id: "delivered", label: "Delivered", icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
+        { id: "cancelled", label: "Cancelled", icon: XCircle, color: "text-red-600", bg: "bg-red-50" },
     ];
 
     const handleTabChange = (tabId: string) => {
@@ -36,8 +37,8 @@ export default function CustomerOrderTabs() {
                         key={tab.id}
                         onClick={() => handleTabChange(tab.id)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
-                                ? "bg-indigo-600 text-white shadow-md"
-                                : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-indigo-600 text-white shadow-md"
+                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                             }`}
                     >
                         <Icon size={18} className={isActive ? "text-white" : tab.color || "text-gray-400"} />

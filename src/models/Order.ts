@@ -27,9 +27,11 @@ const OrderSchema = new Schema(
         total: { type: Number, required: true },
         status: {
             type: String, // Global status
-            enum: ["pending", "shipped", "delivered"],
+            enum: ["pending", "shipped", "delivered", "cancelled"],
             default: "pending",
         },
+        cancellationReason: { type: String, default: "" },
+        cancelledAt: { type: Date, default: null },
         paymentStatus: {
             type: String,
             enum: ["unpaid", "paid", "failed"],
