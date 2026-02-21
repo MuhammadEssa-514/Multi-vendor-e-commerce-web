@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
@@ -36,13 +37,18 @@ export default function SellerSidebar({ className, onNavigate }: SidebarProps) {
     return (
         <aside className={`w-64 bg-slate-900 text-white border-r border-slate-800 min-h-screen sticky top-0 flex-col shadow-xl flex-shrink-0 ${className || 'hidden lg:flex'}`}>
             <div className="p-6 border-b border-slate-800 flex items-center justify-between h-16">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
-                        <ShoppingBag className="text-white" size={16} />
+                <div className="flex items-center gap-3 group">
+                    <div className="relative w-10 h-10 transform group-hover:scale-110 transition-transform duration-300">
+                        <Image
+                            src="/broMart_logo.jpg"
+                            alt="BroMart"
+                            fill
+                            className="object-contain brightness-110"
+                        />
                     </div>
-                    <div>
-                        <span className="font-black text-lg tracking-tight block leading-none">Seller<span className="text-blue-500">Pro</span></span>
-                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">Merchant</span>
+                    <div className="flex flex-col">
+                        <span className="text-lg font-black text-white tracking-tighter leading-none">BroMart<span className="text-blue-500">514</span></span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1 group-hover:text-blue-400 transition-colors">Merchant</span>
                     </div>
                 </div>
                 {onNavigate && (

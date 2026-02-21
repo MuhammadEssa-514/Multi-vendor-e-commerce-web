@@ -1,6 +1,7 @@
 "use client";
 
 import CustomerSidebar from "@/components/CustomerSidebar";
+import Image from "next/image";
 import NotificationCenter from "@/components/notification-center";
 import { ShoppingCart, Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -168,7 +169,20 @@ export default function DashboardLayout({
                             >
                                 <Menu size={24} />
                             </button>
-                            <span className="font-black text-lg text-white tracking-tight">BroMart<span className="text-blue-500">514</span></span>
+                            <div className="flex items-center gap-2 group">
+                                <div className="relative w-8 h-8">
+                                    <Image
+                                        src="/broMart_logo.jpg"
+                                        alt="BroMart"
+                                        fill
+                                        className="object-contain brightness-110 contrast-125"
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-black text-white tracking-tighter leading-none">BroMart<span className="text-blue-500">514</span></span>
+                                    <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">Customer</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Desktop: Welcome Message */}

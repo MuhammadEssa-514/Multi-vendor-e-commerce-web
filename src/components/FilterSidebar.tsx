@@ -87,7 +87,7 @@ export default function FilterSidebar() {
                         placeholder="Min"
                         value={minPrice}
                         onChange={(e) => setMinPrice(e.target.value)}
-                        className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none"
+                        className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none text-black"
                     />
                     <span className="text-gray-400">-</span>
                     <input
@@ -95,7 +95,7 @@ export default function FilterSidebar() {
                         placeholder="Max"
                         value={maxPrice}
                         onChange={(e) => setMaxPrice(e.target.value)}
-                        className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none"
+                        className="w-full text-sm border-gray-200 rounded-sm px-2 py-1.5 focus:border-blue-500 focus:ring-0 outline-none text-black"
                     />
                 </div>
             </div>

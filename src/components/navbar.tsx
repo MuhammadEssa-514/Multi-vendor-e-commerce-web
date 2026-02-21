@@ -16,6 +16,21 @@ export default function Navbar() {
     const { cartCount } = useCart();
     const [userImage, setUserImage] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Handle scroll effects
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 20) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     // Fetch latest user image on mount
     useEffect(() => {
@@ -50,7 +65,10 @@ export default function Navbar() {
     return (
         <div className="flex flex-col w-full font-sans sticky top-0 z-[999]">
             {/* Main Header - White with Logo & Search */}
-            <div className="bg-white py-4 shadow-sm border-b border-gray-100">
+            <div className={`transition-all duration-300 ${isScrolled
+                ? "bg-white/80 backdrop-blur-md py-2 shadow-lg border-b border-gray-200/50"
+                : "bg-white py-4 shadow-sm border-b border-gray-100"
+                }`}>
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex items-center justify-between gap-4 lg:gap-8">
 
@@ -62,9 +80,21 @@ export default function Navbar() {
                             <Menu size={24} />
                         </button>
 
-                        {/* Logo */}
-                        <Link href="/" className="flex-shrink-0">
-                            <span className="text-2xl md:text-3xl font-bold text-blue-600 tracking-tighter">BroMart<span className="text-blue-900">514</span></span>
+                        {/* Logo & Brand */}
+                        <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
+                            <div className="relative w-10 h-10 md:w-12 md:h-12 transform group-hover:scale-110 transition-transform duration-300">
+                                <Image
+                                    src="/broMart_logo.jpg"
+                                    alt="BroMart"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter leading-none">BroMart<span className="text-blue-900">514</span></span>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-blue-500 transition-colors">Premium Market</span>
+                            </div>
                         </Link>
 
                         {/* Search Bar - Desktop */}
@@ -195,7 +225,20 @@ export default function Navbar() {
                     <div className="absolute left-0 top-0 bottom-0 w-[280px] bg-white shadow-2xl overflow-y-auto animate-slide-in-left">
                         {/* Drawer Header */}
                         <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <span className="font-bold text-lg text-blue-600">BroMart-514</span>
+                            <div className="flex items-center gap-3 group">
+                                <div className="relative w-10 h-10">
+                                    <Image
+                                        src="/broMart_logo.jpg"
+                                        alt="BroMart 514"
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-lg font-black text-blue-600 tracking-tighter leading-none">BroMart<span className="text-blue-900">514</span></span>
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Premium Shop</span>
+                                </div>
+                            </div>
                             <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500 hover:text-red-500">
                                 <span className="sr-only">Close menu</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>

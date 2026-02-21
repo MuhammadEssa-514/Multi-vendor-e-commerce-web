@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/Footer";
 import WelcomePopup from "@/components/WelcomePopup";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
@@ -30,11 +31,7 @@ export default function RootLayout({
           </Suspense>
           <Toaster position="top-right" richColors />
           {children}
-          <footer className="bg-white border-t mt-12 py-8">
-            <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
-              &copy; 2026 BroMart Bazar. All Rights Reserved Muhammad Essa 514.
-            </div>
-          </footer>
+          <Footer />
         </Providers>
       </body>
     </html>
