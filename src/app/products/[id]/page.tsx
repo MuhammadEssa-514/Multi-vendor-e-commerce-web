@@ -36,6 +36,8 @@ async function getProduct(id: string) {
             tags: product.tags || [],
             images: product.images || [],
             attributes: plainAttributes,
+            rating: product.rating || 0,
+            numReviews: product.numReviews || 0,
             sellerId: product.sellerId ? {
                 _id: product.sellerId._id.toString(),
                 storeName: product.sellerId.storeName
@@ -68,8 +70,8 @@ async function getRelatedProducts(category: string, currentProductId: string) {
         images: p.images || [],
         category: p.category,
         discount: p.onSale && p.salePrice ? Math.round(((p.price - p.salePrice) / p.price) * 100) : 0,
-        rating: 4.5 + (Math.random() * 0.5),
-        reviews: Math.floor(Math.random() * 200) + 20
+        rating: p.rating || 0,
+        numReviews: p.numReviews || 0
     }));
 }
 
@@ -159,8 +161,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                         },
                         "aggregateRating": {
                             "@type": "AggregateRating",
-                            "ratingValue": "4.8",
-                            "reviewCount": "124"
+                            "ratingValue": product.rating > 0 ? product.rating.toString() : "0",
+                            "reviewCount": product.numReviews > 0 ? product.numReviews.toString() : "0"
                         }
                     })
                 }}
@@ -209,22 +211,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 xl:grid-cols-12 gap-10">
 
                 {/* Left Column: Media & Core Info */}
-                <div className="xl:col-span-9 space-y-10">
-                    <div className="bg-white rounded-[2rem] p-6 sm:p-12 shadow-sm border border-gray-100">
+                <div className="xl:col-span-9 space-y-6">
+                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
                             {/* Image Component */}
                             <div className="lg:col-span-12 xl:col-span-5">
                                 <GalleryView images={product.images || []} name={product.name} />
 
-                                <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="bg-blue-50/50 p-4 sm:p-5 rounded-3xl flex items-center gap-3 border border-blue-100/50">
-                                        <Truck className="text-blue-600 flex-shrink-0" size={20} />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Fast Shipping</span>
+                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="bg-blue-50/50 p-3 rounded-xl flex items-center gap-3 border border-blue-100/50">
+                                        <Truck className="text-blue-600 flex-shrink-0" size={18} />
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-blue-700">Fast Shipping</span>
                                     </div>
-                                    <div className="bg-green-50/50 p-4 sm:p-5 rounded-3xl flex items-center gap-3 border border-green-100/50">
-                                        <ShieldCheck className="text-green-600 flex-shrink-0" size={20} />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Verified Quality</span>
+                                    <div className="bg-green-50/50 p-3 rounded-xl flex items-center gap-3 border border-green-100/50">
+                                        <ShieldCheck className="text-green-600 flex-shrink-0" size={18} />
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-green-700">Verified Quality</span>
                                     </div>
                                 </div>
                             </div>
@@ -247,14 +249,25 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                     <ProductName name={product.name} />
 
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-10">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex text-yellow-400">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} size={14} fill={i < 4 ? "currentColor" : "none"} className={i < 4 ? "text-yellow-400" : "text-gray-200"} />
-                                                ))}
+                                        {product.numReviews > 0 ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex text-yellow-400">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} size={14} fill={i < Math.floor(product.rating) ? "currentColor" : "none"} className={i < Math.floor(product.rating) ? "text-yellow-400" : "text-gray-200"} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs font-semibold text-gray-500">{product.rating} ({product.numReviews} Reviews)</span>
                                             </div>
-                                            <span className="text-xs font-semibold text-gray-500">4.8 (124 Reviews)</span>
-                                        </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex text-gray-200">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} size={14} fill="none" className="text-gray-200" />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs font-medium text-gray-400 italic">No reviews yet</span>
+                                            </div>
+                                        )}
 
                                         <div className="hidden sm:block h-4 w-px bg-gray-200"></div>
 
@@ -267,26 +280,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                                     </div>
 
                                     {/* Pricing Block - Refined */}
-                                    <div className="mb-10 p-1 border-b border-gray-100 pb-10">
+                                    <div className="mb-6 p-1 border-b border-gray-100 pb-6">
                                         {product.onSale && product.salePrice ? (
                                             <div className="space-y-1">
                                                 <div className="flex items-baseline gap-3">
-                                                    <span className="text-4xl font-black text-gray-900 tracking-tighter">
+                                                    <span className="text-2xl font-bold text-gray-900 tracking-tight">
                                                         ₨ {product.salePrice.toLocaleString()}
                                                     </span>
-                                                    <span className="text-base font-semibold text-gray-400 line-through">
+                                                    <span className="text-sm font-semibold text-gray-400 line-through">
                                                         ₨ {product.price.toLocaleString()}
                                                     </span>
-                                                    <span className="px-2 py-0.5 bg-rose-100 text-rose-600 text-[10px] font-black rounded-md">
+                                                    <span className="px-1.5 py-0.5 bg-rose-100 text-rose-600 text-[9px] font-black rounded">
                                                         -{discountPercent}%
                                                     </span>
                                                 </div>
-                                                <p className="text-rose-500 font-bold text-xs uppercase tracking-widest">
-                                                    Special promotion price
-                                                </p>
                                             </div>
                                         ) : (
-                                            <div className="text-4xl font-black text-gray-900 tracking-tighter">
+                                            <div className="text-2xl font-bold text-gray-900 tracking-tight">
                                                 ₨ {product.price.toLocaleString()}
                                             </div>
                                         )}
@@ -309,19 +319,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
                     {/* Specifications - Grid Layout */}
                     {Object.keys(product.attributes || {}).length > 0 && (
-                        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="p-3 bg-gray-900 rounded-2xl text-white">
-                                    <LayoutGrid size={24} />
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-gray-900 rounded-lg text-white">
+                                    <LayoutGrid size={18} />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900 tracking-tight">Technical Specifications</h2>
+                                <h2 className="text-lg font-bold text-gray-900 tracking-tight">Technical Specifications</h2>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {Object.entries(product.attributes).map(([key, value]) => (
-                                    <div key={key} className="space-y-1.5 group">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">{key.replace(/_/g, ' ')}</span>
-                                        <p className="font-bold text-gray-800 text-[13px] bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">
+                                    <div key={key} className="space-y-1 group">
+                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">{key.replace(/_/g, ' ')}</span>
+                                        <p className="font-bold text-gray-800 text-xs bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
                                             {Array.isArray(value) ? value.join(', ') : String(value)}
                                         </p>
                                     </div>
@@ -331,78 +341,78 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     )}
 
                     {/* Detailed Description */}
-                    <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <div className="flex items-center gap-4 mb-10">
-                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
-                                <BadgePercent size={24} />
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <BadgePercent size={18} />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Product Description</h2>
+                            <h2 className="text-lg font-bold text-gray-900 tracking-tight">Product Description</h2>
                         </div>
-                        <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-base sm:text-lg px-2 max-w-4xl">
+                        <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-sm px-2 max-w-4xl">
                             {product.description}
                         </div>
                     </div>
                 </div>
 
                 {/* Right Column: Experience Sidebar - Cleaner Grid */}
-                <div className="xl:col-span-3 space-y-8">
-                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 sticky top-24">
-                        <div className="space-y-10">
+                <div className="xl:col-span-3 space-y-6">
+                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 sticky top-24">
+                        <div className="space-y-6">
                             <section>
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-2.5 bg-gray-50 text-gray-500 rounded-xl">
-                                        <MapPin size={20} />
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-gray-50 text-gray-500 rounded-lg">
+                                        <MapPin size={18} />
                                     </div>
-                                    <h4 className="font-bold text-sm text-gray-900">Delivery Details</h4>
+                                    <h4 className="font-bold text-xs text-gray-900">Delivery Details</h4>
                                 </div>
-                                <div className="pl-1 space-y-4">
+                                <div className="pl-1 space-y-2">
                                     <div>
-                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-tighter">Shipping Destination</p>
-                                        <p className="text-sm font-bold text-gray-800 mt-1">Nationwide (Pakistan)</p>
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Shipping Destination</p>
+                                        <p className="text-xs font-bold text-gray-800 mt-1">Nationwide (Pakistan)</p>
                                     </div>
-                                    <button className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">Select Location</button>
+                                    <button className="text-[9px] font-bold text-blue-600 uppercase tracking-widest hover:underline">Select Location</button>
                                 </div>
                             </section>
 
                             <div className="h-px bg-gray-50"></div>
 
                             <section>
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-2.5 bg-gray-50 text-gray-500 rounded-xl">
-                                        <Undo2 size={20} />
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-gray-50 text-gray-500 rounded-lg">
+                                        <Undo2 size={18} />
                                     </div>
-                                    <h4 className="font-bold text-sm text-gray-900">After-Sales Policy</h4>
+                                    <h4 className="font-bold text-xs text-gray-900">After-Sales Policy</h4>
                                 </div>
                                 <div className="pl-1 space-y-1">
-                                    <p className="text-sm font-bold text-gray-800 italic">7 Days Return Guarantee</p>
-                                    <p className="text-xs text-gray-400 font-semibold leading-relaxed">Easy returns if the product matches return criteria</p>
+                                    <p className="text-xs font-bold text-gray-800 italic">7 Days Return Guarantee</p>
+                                    <p className="text-[10px] text-gray-400 font-semibold leading-relaxed">Easy returns if the product matches criteria</p>
                                 </div>
                             </section>
 
-                            <div className="pt-10 border-t border-gray-50">
-                                <div className="flex items-center gap-2 mb-6 opacity-40">
-                                    <Store size={14} />
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-900">Licensed Seller</span>
+                            <div className="pt-6 border-t border-gray-50">
+                                <div className="flex items-center gap-2 mb-4 opacity-40">
+                                    <Store size={12} />
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-gray-900">Licensed Seller</span>
                                 </div>
 
-                                <div className="flex items-center gap-4 mb-8">
-                                    <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center font-black text-gray-400 italic">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-black text-gray-400 italic text-xs">
                                         {product.sellerId?.storeName?.[0] || 'S'}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-base font-black text-gray-900 truncate">{product.sellerId?.storeName || "Official Store"}</div>
-                                        <Link href="#" className="text-[9px] font-bold text-blue-600 uppercase tracking-widest hover:underline">View Store Profile</Link>
+                                        <div className="text-sm font-black text-gray-900 truncate">{product.sellerId?.storeName || "Official Store"}</div>
+                                        <Link href="#" className="text-[8px] font-bold text-blue-600 uppercase tracking-widest hover:underline">View Store Profile</Link>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
-                                        <div className="text-sm font-black text-gray-900">98%</div>
-                                        <div className="text-[9px] font-bold text-gray-400 uppercase mt-1">Success</div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-gray-50 p-3 rounded-xl text-center border border-gray-100">
+                                        <div className="text-xs font-black text-gray-900">98%</div>
+                                        <div className="text-[8px] font-bold text-gray-400 uppercase mt-1">Success</div>
                                     </div>
-                                    <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
-                                        <div className="text-sm font-black text-gray-900">Fast</div>
-                                        <div className="text-[9px] font-bold text-gray-400 uppercase mt-1">Reply</div>
+                                    <div className="bg-gray-50 p-3 rounded-xl text-center border border-gray-100">
+                                        <div className="text-xs font-black text-gray-900">Fast</div>
+                                        <div className="text-[8px] font-bold text-gray-400 uppercase mt-1">Reply</div>
                                     </div>
                                 </div>
                                 {product.sellerId?._id && <ChatButton sellerId={product.sellerId._id} productId={product._id} />}
@@ -413,13 +423,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Ratings & Reviews Section */}
-            <div className="max-w-7xl mx-auto px-4 mt-20">
-                <div className="bg-white p-12 rounded-[3rem] shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-12">
-                        <div className="p-3 bg-yellow-400 rounded-2xl text-white shadow-lg shadow-yellow-100">
-                            <Star size={24} fill="currentColor" />
+            <div className="max-w-7xl mx-auto px-4 mt-12">
+                <div className="bg-white p-6 sm:p-10 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="p-2 bg-yellow-400 rounded-lg text-white shadow-lg shadow-yellow-100">
+                            <Star size={20} fill="currentColor" />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Customer Feedback</h2>
+                        <h2 className="text-xl font-bold text-gray-900 tracking-tight">Customer Feedback</h2>
                     </div>
                     <ReviewSection productId={id} />
                 </div>
@@ -428,18 +438,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {/* Related Products Section */}
             {
                 relatedProducts.length > 0 && (
-                    <div className="max-w-7xl mx-auto px-4 mt-20">
-                        <div className="flex items-center justify-between mb-10">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-gray-900 rounded-2xl text-white shadow-xl shadow-gray-200">
-                                    <Heart size={24} fill="currentColor" />
+                    <div className="max-w-7xl mx-auto px-4 mt-12">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-gray-900 rounded-lg text-white shadow-lg shadow-gray-200">
+                                    <Heart size={20} fill="currentColor" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 tracking-tight leading-none">You Might Also Like</h3>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 px-0.5 opacity-60">Handpicked for your style</p>
+                                    <h3 className="text-xl font-bold text-gray-900 tracking-tight leading-none">You Might Also Like</h3>
+                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1.5 px-0.5 opacity-60">Handpicked for your style</p>
                                 </div>
                             </div>
-                            <Link href="/products" className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-4 py-2 rounded-xl transition-all">Explore All</Link>
+                            <Link href="/products" className="text-[9px] font-bold text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-3 py-1.5 rounded-lg transition-all">Explore All</Link>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 sm:gap-8">
                             {relatedProducts.map((p: any) => (

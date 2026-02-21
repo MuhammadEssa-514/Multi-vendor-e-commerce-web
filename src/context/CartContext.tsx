@@ -16,8 +16,8 @@ type CartItem = {
 
 type CartContextType = {
     cart: CartItem[];
-    addToCart: (product: any) => void;
-    buyNow: (product: any) => void;
+    addToCart: (product: any, quantity?: number) => void;
+    buyNow: (product: any, quantity?: number) => void;
     directCheckoutItem: CartItem | null;
     clearDirectCheckout: () => void;
     removeFromCart: (productId: string) => void;
@@ -52,37 +52,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
 
             // Sync/Merge if logged in
-            if (status === "authenticated") {
+            if (status === "authenticated" && session?.user) {
                 try {
                     const res = await fetch("/api/cart");
                     const data = await res.json();
                     const dbItems: CartItem[] = data.items || [];
 
+                    // Always prioritize DB items, but merge if there are local items
+                    let finalCart = [...dbItems];
+
                     if (localItems.length > 0) {
-                        // MERGE: Combine local items into DB items
-                        const mergedCart = [...dbItems];
                         localItems.forEach(localItem => {
-                            const index = mergedCart.findIndex(item => item._id === localItem._id);
+                            const localId = localItem._id?.toString();
+                            if (!localId) return;
+
+                            const index = finalCart.findIndex(item => item._id?.toString() === localId);
                             if (index > -1) {
-                                // Ensure numeric addition
-                                mergedCart[index].quantity = Number(mergedCart[index].quantity) + Number(localItem.quantity);
+                                finalCart[index].quantity = Number(finalCart[index].quantity) + Number(localItem.quantity);
                             } else {
-                                mergedCart.push({ ...localItem, quantity: Number(localItem.quantity) });
+                                finalCart.push({ ...localItem, quantity: Number(localItem.quantity) });
                             }
                         });
 
-                        setCart(mergedCart);
-                        // Sync merged result back to DB immediately
+                        // Immediately clear localStorage to prevent multiple merges
+                        localStorage.removeItem("cart");
+
+                        // Sync merged result back to DB
                         await fetch("/api/cart", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ items: mergedCart }),
+                            body: JSON.stringify({ items: finalCart }),
                         });
-                        // Clear local storage to prevent double merge
-                        localStorage.removeItem("cart");
-                    } else {
-                        setCart(dbItems);
                     }
+
+                    setCart(finalCart);
                     setLoading(false);
                     return;
                 } catch (e) {
@@ -111,12 +114,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     // 2. Debounced Sync to DB & LocalStorage
     const syncCart = useCallback(async (currentCart: CartItem[]) => {
-        // Always save to LocalStorage as fallback for guests
-        localStorage.setItem("cart", JSON.stringify(currentCart));
-
         // Sync to DB if logged in
         if (status === "authenticated") {
             try {
+                // Remove from local storage immediately to prevent doubling on next login
+                localStorage.removeItem("cart");
+
                 await fetch("/api/cart", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -125,6 +128,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             } catch (e) {
                 console.error("Sync to DB failed", e);
             }
+        } else if (status === "unauthenticated") {
+            // ONLY save to LocalStorage for guests
+            localStorage.setItem("cart", JSON.stringify(currentCart));
         }
     }, [status]);
 
@@ -138,29 +144,59 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (syncTimeout.current) clearTimeout(syncTimeout.current);
 
         syncTimeout.current = setTimeout(() => {
-            syncCart(cart);
-        }, 1000); // 1-second debounce to stay efficient
+            // Self-healing deduplication before sync
+            const uniqueCartMap = new Map();
+            cart.forEach(item => {
+                const id = item._id?.toString();
+                if (!id) return;
+                if (uniqueCartMap.has(id)) {
+                    // Combine quantities if duplicate found
+                    const existing = uniqueCartMap.get(id);
+                    uniqueCartMap.set(id, {
+                        ...existing,
+                        quantity: Number(existing.quantity) + Number(item.quantity)
+                    });
+                } else {
+                    uniqueCartMap.set(id, { ...item });
+                }
+            });
+            const uniqueCart = Array.from(uniqueCartMap.values());
+
+            // Only update state if duplicates were found (prevents infinite loop)
+            if (uniqueCart.length !== cart.length) {
+                setCart(uniqueCart);
+            }
+
+            syncCart(uniqueCart);
+        }, 1000);
 
         return () => {
             if (syncTimeout.current) clearTimeout(syncTimeout.current);
         };
     }, [cart, syncCart]);
 
-    const addToCart = (product: any) => {
+    const addToCart = (product: any, quantity: number = 1) => {
+        if (!product?._id) return;
+
         setCart((prevCart) => {
-            const existingItemIndex = prevCart.findIndex((item) => item._id === product._id);
+            const productIds = product._id.toString();
+            const existingItemIndex = prevCart.findIndex((item) => item._id?.toString() === productIds);
+
             if (existingItemIndex > -1) {
                 const newCart = [...prevCart];
-                newCart[existingItemIndex].quantity = Number(newCart[existingItemIndex].quantity) + 1;
+                newCart[existingItemIndex] = {
+                    ...newCart[existingItemIndex],
+                    quantity: Number(newCart[existingItemIndex].quantity) + Number(quantity)
+                };
                 return newCart;
             } else {
-                return [...prevCart, { ...product, quantity: 1 }];
+                return [...prevCart, { ...product, _id: productIds, quantity: Number(quantity) }];
             }
         });
     };
 
-    const buyNow = (product: any) => {
-        const item = { ...product, quantity: 1 };
+    const buyNow = (product: any, quantity: number = 1) => {
+        const item = { ...product, quantity: Number(quantity) };
         setDirectCheckoutItem(item);
         sessionStorage.setItem("direct_checkout_item", JSON.stringify(item));
     };
@@ -171,14 +207,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     const removeFromCart = (productId: string) => {
-        setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
+        const targetId = productId.toString();
+        setCart((prevCart) => prevCart.filter((item) => item._id?.toString() !== targetId));
     };
 
     const updateQuantity = (productId: string, quantity: number) => {
+        const targetId = productId.toString();
         const numericQuantity = Number(quantity);
         if (numericQuantity < 1) return;
         setCart((prevCart) =>
-            prevCart.map((item) => (item._id === productId ? { ...item, quantity: numericQuantity } : item))
+            prevCart.map((item) => (item._id?.toString() === targetId ? { ...item, quantity: numericQuantity } : item))
         );
     };
 
@@ -190,7 +228,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+    const cartCount = cart.reduce((acc, item) => acc + Number(item.quantity), 0);
 
     return (
         <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, buyNow, directCheckoutItem, clearDirectCheckout, loading }}>

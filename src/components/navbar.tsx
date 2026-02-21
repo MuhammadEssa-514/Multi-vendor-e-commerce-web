@@ -84,7 +84,7 @@ export default function Navbar() {
                         <Link href="/" className="flex-shrink-0 flex items-center gap-3 group">
                             <div className="relative w-10 h-10 md:w-12 md:h-12 transform group-hover:scale-110 transition-transform duration-300">
                                 <Image
-                                    src="/broMart_logo.jpg"
+                                    src="/broMart_logo.png"
                                     alt="BroMart"
                                     fill
                                     className="object-contain"
@@ -228,7 +228,7 @@ export default function Navbar() {
                             <div className="flex items-center gap-3 group">
                                 <div className="relative w-10 h-10">
                                     <Image
-                                        src="/broMart_logo.jpg"
+                                        src="/broMart_logo.png"
                                         alt="BroMart 514"
                                         fill
                                         className="object-contain"

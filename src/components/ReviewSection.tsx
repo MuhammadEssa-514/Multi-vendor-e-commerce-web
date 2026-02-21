@@ -130,7 +130,7 @@ export default function ReviewSection({ productId }: { productId: string }) {
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     placeholder="What did you like or dislike?"
-                                    className="w-full text-sm border-gray-200 rounded-md p-3 focus:ring-1 focus:ring-blue-600 outline-none min-h-[120px] bg-gray-50"
+                                    className="w-full text-sm border-gray-200 rounded-md p-3 focus:ring-1 focus:ring-blue-600 outline-none min-h-[120px] bg-gray-50 text-black"
                                     required
                                 />
                             </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Review from "@/models/Review";
+import Product from "@/models/Product";
 
 export async function GET(req: NextRequest) {
     try {
@@ -39,21 +40,34 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        // Optional: Check if user already reviewed this product
-        const existingReview = await Review.findOne({ productId, customerId: (session.user as any).id });
+        const userId = (session.user as any).id;
+
+        // Check if user already reviewed this product
+        const existingReview = await Review.findOne({ productId, customerId: userId });
         if (existingReview) {
             return NextResponse.json({ error: "You have already reviewed this product" }, { status: 400 });
         }
 
         const review = await Review.create({
             productId,
-            customerId: (session.user as any).id,
+            customerId: userId,
             rating,
             comment,
         });
 
+        // Update Product Model with aggregated Review Data
+        const allProductReviews = await Review.find({ productId });
+        const numReviews = allProductReviews.length;
+        const avgRating = allProductReviews.reduce((sum, r) => sum + r.rating, 0) / numReviews;
+
+        await Product.findByIdAndUpdate(productId, {
+            rating: parseFloat(avgRating.toFixed(1)),
+            numReviews: numReviews
+        });
+
         return NextResponse.json(review, { status: 201 });
     } catch (error) {
+        console.error("Review Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

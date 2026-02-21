@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No items in orders" }, { status: 400 });
         }
 
-        if (!shippingAddress) {
-            return NextResponse.json({ error: "Shipping address is required" }, { status: 400 });
+        if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.street || !shippingAddress.city || !shippingAddress.zipCode) {
+            return NextResponse.json({ error: "All shipping address fields are required" }, { status: 400 });
         }
 
         await dbConnect();
@@ -58,16 +58,22 @@ export async function POST(req: NextRequest) {
         const COMMISSION_RATE = 0.10; // 10% platform fee
 
         for (const [sellerId, sellerItems] of Object.entries(sellerGroups)) {
-            // Calculate total for this specific seller's order
-            const sellerOrderTotal = sellerItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            // Calculate total for this specific seller's order using salePrice if applicable
+            const sellerOrderTotal = sellerItems.reduce((acc, item) => {
+                const itemPrice = item.onSale && item.salePrice ? item.salePrice : item.price;
+                return acc + (itemPrice * item.quantity);
+            }, 0);
 
-            // Format products for Order Schema
-            const orderProducts = sellerItems.map((item) => ({
-                productId: item._id,
-                sellerId: sellerId,
-                quantity: item.quantity,
-                price: item.price
-            }));
+            // Format products for Order Schema using correct price
+            const orderProducts = sellerItems.map((item) => {
+                const itemPrice = item.onSale && item.salePrice ? item.salePrice : item.price;
+                return {
+                    productId: item._id,
+                    sellerId: sellerId,
+                    quantity: item.quantity,
+                    price: itemPrice
+                };
+            });
 
             // Create the Order
             const order = await Order.create({

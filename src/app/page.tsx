@@ -193,7 +193,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<any
           </div>
 
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
               {products.map((product: any) => (
                 <ProductCard key={product._id} product={product} />
               ))}

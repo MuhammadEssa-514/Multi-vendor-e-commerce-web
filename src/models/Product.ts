@@ -57,6 +57,14 @@ const ProductSchema = new Schema(
             type: Date,
             default: null,
         },
+        rating: {
+            type: Number,
+            default: 0,
+        },
+        numReviews: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true },
 );

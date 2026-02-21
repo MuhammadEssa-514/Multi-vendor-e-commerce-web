@@ -44,7 +44,7 @@ const AdminSidebar = memo(({ className, onNavigate }: SidebarProps) => {
                 <div className="flex items-center gap-3 group">
                     <div className="relative w-10 h-10 transform group-hover:scale-110 transition-transform duration-300">
                         <Image
-                            src="/broMart_logo.jpg"
+                            src="/broMart_logo.png"
                             alt="BroMart"
                             fill
                             className="object-contain brightness-110"

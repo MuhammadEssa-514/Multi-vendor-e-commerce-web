@@ -36,9 +36,7 @@ export default function AddToCartButton({ product }: { product: any }) {
         }
 
         setLoading(true);
-        for (let i = 0; i < quantity; i++) {
-            addToCart(product);
-        }
+        addToCart(product, quantity);
 
         setTimeout(() => {
             setLoading(false);
@@ -66,7 +64,7 @@ export default function AddToCartButton({ product }: { product: any }) {
             return;
         }
 
-        executeBuyNow(product);
+        executeBuyNow(product, quantity);
         router.push("/checkout?mode=direct");
     };
 
@@ -86,24 +84,24 @@ export default function AddToCartButton({ product }: { product: any }) {
             {/* Quantity Selector */}
             {!isOutOfStock && (
                 <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Quantity</span>
-                    <div className="flex items-center bg-gray-100 rounded-2xl p-1 border border-gray-200">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Quantity</span>
+                    <div className="flex items-center bg-gray-100 rounded-xl p-0.5 border border-gray-200">
                         <button
                             onClick={decrementQty}
-                            className="p-2 hover:bg-white rounded-xl transition-colors text-gray-500 hover:text-gray-900"
+                            className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-500 hover:text-gray-900"
                         >
                             <Minus size={16} />
                         </button>
-                        <span className="w-12 text-center font-bold text-gray-900">{quantity}</span>
+                        <span className="w-10 text-center font-bold text-gray-900 text-sm">{quantity}</span>
                         <button
                             onClick={incrementQty}
-                            className="p-2 hover:bg-white rounded-xl transition-colors text-gray-500 hover:text-gray-900"
+                            className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-500 hover:text-gray-900"
                         >
                             <Plus size={16} />
                         </button>
                     </div>
                     {product.stock && (
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
                             {product.stock} units available
                         </span>
                     )}
@@ -115,18 +113,18 @@ export default function AddToCartButton({ product }: { product: any }) {
                     type="button"
                     onClick={handleBuyNow}
                     disabled={loading || isOutOfStock}
-                    className="flex-1 bg-orange-500 hover:bg-orange-600 border border-transparent rounded-[1.5rem] py-4 px-8 flex items-center justify-center text-sm font-bold text-white transition-all shadow-lg shadow-orange-100 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                    className="flex-1 bg-orange-500 hover:bg-orange-600 border border-transparent rounded-lg py-2.5 px-6 flex items-center justify-center text-xs font-bold text-white transition-all shadow-md shadow-orange-100 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
                 >
-                    <Zap className="mr-2 h-4 w-4 fill-current" />
+                    <Zap className="mr-2 h-3.5 w-3.5 fill-current" />
                     {isOutOfStock ? "Out of Stock" : "Buy Now"}
                 </button>
                 <button
                     type="button"
                     onClick={handleAddToCart}
                     disabled={loading || isOutOfStock}
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 border border-transparent rounded-[1.5rem] py-4 px-8 flex items-center justify-center text-sm font-bold text-white transition-all shadow-lg shadow-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 border border-transparent rounded-lg py-2.5 px-6 flex items-center justify-center text-xs font-bold text-white transition-all shadow-md shadow-cyan-100 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
                 >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    <ShoppingCart className="mr-2 h-3.5 w-3.5" />
                     {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
             </div>

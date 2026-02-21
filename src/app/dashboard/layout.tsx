@@ -172,7 +172,7 @@ export default function DashboardLayout({
                             <div className="flex items-center gap-2 group">
                                 <div className="relative w-8 h-8">
                                     <Image
-                                        src="/broMart_logo.jpg"
+                                        src="/broMart_logo.png"
                                         alt="BroMart"
                                         fill
                                         className="object-contain brightness-110 contrast-125"

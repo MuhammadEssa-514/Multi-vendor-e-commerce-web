@@ -81,9 +81,9 @@ async function getProducts(params: {
         sellerId: product.sellerId ? { ...product.sellerId, _id: product.sellerId._id.toString() } : null,
         createdAt: product.createdAt.toString(),
         updatedAt: product.updatedAt.toString(),
-        discount: product.discount || Math.floor(Math.random() * 30) + 5,
-        rating: product.rating || 4.5,
-        reviews: product.reviews || Math.floor(Math.random() * 100),
+        discount: product.discount || 0,
+        rating: product.rating || 0,
+        numReviews: product.numReviews || 0,
     }));
 }
 
@@ -109,7 +109,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                     </div>
 
                     {products.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
                             {products.map((product: any) => (
                                 <ProductCard key={product._id} product={product} />
                             ))}

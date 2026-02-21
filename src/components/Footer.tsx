@@ -15,7 +15,7 @@ export default function Footer() {
                         <Link href="/" className="flex items-center gap-3 group">
                             <div className="relative w-8 h-8 transform group-hover:scale-110 transition-transform duration-300">
                                 <Image
-                                    src="/broMart_logo.jpg"
+                                    src="/broMart_logo.png"
                                     alt="BroMart"
                                     fill
                                     className="object-contain"
